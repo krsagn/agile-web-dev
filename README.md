@@ -2,7 +2,7 @@
 
 ## About
 
-A web app that gives users one quiz per day across a range of categories. The goal is to make learning a daily habit by keeping sessions short, rewarding consistency, and tracking progress over time.
+A web app that gives users a quiz per day across a range of categories. The goal is to make learning a daily habit by keeping sessions short, rewarding consistency, and tracking progress over time.
 
 ### How It Works
 
