@@ -1,0 +1,34 @@
+/* =============================================
+   Daily Quiz — custom styles
+   Bootstrap 5 handles everything else.
+   ============================================= */
+
+/* Ensure full viewport height so footer stays at bottom */
+html, body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+main {
+  flex: 1;
+}
+
+/* ---- Navbar ---- */
+.navbar-brand {
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Cards ---- */
+.card {
+  border-radius: 0.75rem;
+}
+
+/* ---- Form controls ---- */
+.form-control:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
