@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Quiz - Login</title>
-    <link rel="stylesheet" href="/static/login.css">
+    <!--link stylesheet-->
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
 
@@ -22,6 +23,9 @@
             <button type="submit">Submit</button>
         </form>
     </div>
+
+<!--link javascript-->
+<script src="/script/login.js"></script>
 
 </body>
 </html>
