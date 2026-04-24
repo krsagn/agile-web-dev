@@ -4,7 +4,8 @@
    ============================================= */
 
 /* Ensure full viewport height so footer stays at bottom */
-html, body {
+html,
+body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;

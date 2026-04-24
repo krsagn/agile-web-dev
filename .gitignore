@@ -60,3 +60,8 @@ $RECYCLE.BIN/
 # Logs
 *.log
 logs/
+
+# Flask
+venv/
+*.db
+__pycache__/

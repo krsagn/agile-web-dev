@@ -44,7 +44,30 @@ The app includes several features to keep users engaged over time.
 
 ## Running the App
 
-Not yet available.
+### Prerequisites
+
+- Python 3.x
+- pip
+
+### Setup
+
+```bash
+# Clone the repo, then install dependencies
+pip install -r requirements.txt
+```
+
+### Start the server
+
+```bash
+python run.py
+```
+
+The Flask development server will start at `http://127.0.0.1:5001`.
+
+| Route   | Description     |
+| ------- | --------------- |
+| `/`     | Home page       |
+| `/home` | Test/reference page |
 
 ---
 
