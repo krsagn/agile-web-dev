@@ -145,7 +145,7 @@ body {
 @keyframes fact-card-sweep-in {
   0% {
     opacity: 0;
-    transform: translateX(0px) translateY(30px);
+    transform: translateX(-8px) translateY(-30px);
   }
 
   100% {
@@ -230,6 +230,19 @@ body {
   border-radius: 2rem;
   background: var(--panel-white);
   box-shadow: var(--shadow-soft);
+   animation: fact-card-sweep-in 950ms ease-out both;
+}
+
+@keyframes fact-card-sweep-in {
+  0% {
+    opacity: 0;
+    transform: translateX(18px) translateY(0px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
 }
 
 .form-title {
