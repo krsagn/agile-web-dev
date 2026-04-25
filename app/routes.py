@@ -9,3 +9,7 @@ def index():
 @main.route('/home')
 def test():
     return render_template('test-page.html')
+
+@main.route('/login')
+def login():
+    return render_template('login.html')
