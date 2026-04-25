@@ -458,6 +458,7 @@ body {
   max-width: 540px;
   margin: 6rem auto 0 3rem;
   padding: 2.4rem;
+  justify-content: center;
   border-radius: 2rem;
   background: var(--panel-white);
   box-shadow: var(--shadow-soft);
