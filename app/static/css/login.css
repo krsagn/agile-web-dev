@@ -107,6 +107,8 @@ body {
 .brand-tag {
   background-color: rgb(221, 255, 171);
   border: green 1px solid rgba(221, 255, 171, 0.95);
+  box-shadow: 0 0 20px rgba(235, 242, 141, 0.35), 
+  0 0 45px rgba(247, 255, 104, 0.2);
 }
 
 .brand-copy h1 {
