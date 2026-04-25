@@ -240,20 +240,20 @@
                     <span>or sign up with</span>
                   </div>
 
-                  <div class="row g-3">
-                    <div class="col-12 col-sm-6">
-                      <button class="btn social-btn w-100" type="button">
-                        <i class="bi bi-google"></i>
-                        Google
-                      </button>
-                    </div>
-                    <div class="col-12 col-sm-6">
-                      <button class="btn social-btn w-100" type="button">
-                        <i class="bi bi-apple"></i>
-                        Apple
-                      </button>
-                    </div>
-                  </div>
+                  <div id="g_id_onload"
+                    data-client_id="327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com"
+                    data-login_uri="http://localhost:5000/auth/google"
+                    data-auto_prompt="false">
+                </div>
+
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-size="large"
+                    data-theme="outline"
+                    data-text="signup_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
 
                   <p class="switch-copy">
                     Already have an account?
@@ -273,5 +273,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
   </body>
 </html>
