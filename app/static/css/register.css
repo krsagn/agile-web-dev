@@ -139,6 +139,19 @@ body {
   border-radius: 2rem;
   background: var(--panel-white);
   box-shadow: var(--shadow-soft);
+  animation: fact-card-sweep-in 650ms ease-out both;
+}
+
+@keyframes fact-card-sweep-in {
+  0% {
+    opacity: 0;
+    transform: translateX(0px) translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
 }
 
 .benefit-row {
