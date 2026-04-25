@@ -163,6 +163,9 @@ body {
 }
 
 .fact-card {
+  max-width: 540px;
+  margin: 2.5rem 3rem 0 auto;
+  padding: 2.4rem;
   overflow: hidden;
 }
 
@@ -632,6 +635,11 @@ body {
 
   .login-card {
     margin: 2rem auto 0;
+  }
+
+  .fact-card {
+    margin: 2rem auto 0;
+    padding: 1.5rem;
   }
 }
 
