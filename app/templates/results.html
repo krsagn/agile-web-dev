@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Agile Web Dev</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
+</head>
+<body>
+    <div class="results-page">
+        <div class="results-shell">
+            <div class="results-layout">
+                <!-- Brand Panel -->
+                <div class="brand-panel">
+                    <div class="brand-panel-inner">
+                        <div class="brand-header">
+                            <div class="brand-mark">A</div>
+                            <span class="brand-name">Agile Dev</span>
+                        </div>
+                        <div class="brand-copy">
+                            <span class="brand-tag">Quiz Complete</span>
+                            <h1>Your Results</h1>
+                            <p>Great job! Here's how you performed in this quiz.</p>
+                        </div>
+                        <div class="preview-card">
+                            <div class="preview-header">
+                                <span>Performance</span>
+                                <span>Top 15%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 70%;"></div>
+                            </div>
+                            <div class="progress-meta">
+                                <span>7/10 correct</span>
+                                <span>70% accuracy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Panel - Results -->
+                <div class="form-panel">
+                    <div class="form-panel-inner">
+                        <a href="{{ url_for('main.index') }}" class="panel-back">← Back to Home</a>
+                        
+                        <div class="results-content">
+                            <!-- Score Summary -->
+                            <div class="score-card">
+                                <div class="score-label">Score Summary</div>
+                                <div class="score-display">
+                                    <span class="score-value">7</span>
+                                    <span class="score-divider">/</span>
+                                    <span class="score-total">10</span>
+                                </div>
+                                <div class="score-percentage">70%</div>
+                            </div>
+
+                            <!-- Stats Row -->
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <div class="stat-icon">🔥</div>
+                                    <div class="stat-value">5</div>
+                                    <div class="stat-label">Day Streak</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">⭐</div>
+                                    <div class="stat-value">320</div>
+                                    <div class="stat-label">Points</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">🎯</div>
+                                    <div class="stat-value">2:45</div>
+                                    <div class="stat-label">Time</div>
+                                </div>
+                            </div>
+
+                            <!-- Achievements -->
+                            <div class="achievements-section">
+                                <h3>Achievement Unlocks</h3>
+                                <div class="achievements-list">
+                                    <div class="achievement-item unlocked">
+                                        <div class="achievement-icon">🏆</div>
+                                        <div class="achievement-info">
+                                            <div class="achievement-name">Quick Thinker</div>
+                                            <div class="achievement-desc">Complete quiz in under 3 minutes</div>
+                                        </div>
+                                    </div>
+                                    <div class="achievement-item unlocked">
+                                        <div class="achievement-icon">🔥</div>
+                                        <div class="achievement-info">
+                                            <div class="achievement-name">On Fire</div>
+                                            <div class="achievement-desc">5 day streak achieved</div>
+                                        </div>
+                                    </div>
+                                    <div class="achievement-item locked">
+                                        <div class="achievement-icon">💎</div>
+                                        <div class="achievement-info">
+                                            <div class="achievement-name">Perfect Score</div>
+                                            <div class="achievement-desc">Score 10/10 (locked)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <button class="btn btn-primary">
+                                    <span class="btn-icon">🏅</span>
+                                    View Leaderboard
+                                </button>
+                                <button class="btn btn-secondary">
+                                    <span class="btn-icon">👤</span>
+                                    Go to Dashboard
+                                </button>
+                                <button class="btn btn-outline">
+                                    <span class="btn-icon">📤</span>
+                                    Share Result
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+                    <p class="result-description">Result description goes here...</p>
+                    <a href="#" class="result-link">View more</a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Agile Web Dev. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
