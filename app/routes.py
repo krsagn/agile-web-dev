@@ -8,9 +8,6 @@ def index():
 
 @main.route('/home')
 def test():
-<<<<<<< Updated upstream
-    return render_template('test-page.html')
-=======
     return render_template('test-page.html')
 
 @main.route('/login')
@@ -58,4 +55,3 @@ def auth_google():
     }
 
     return redirect(url_for("main.index"))
->>>>>>> Stashed changes
