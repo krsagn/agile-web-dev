@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Quizz Terms and Conditions</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --bg-left: #dbe6ff;
+        --bg-right: #f5deef;
+        --card-bg: rgba(255, 255, 255, 0.94);
+        --text-main: #25233f;
+        --text-muted: #8f95ad;
+        --accent: #2e2948;
+        --shadow-soft: 0 24px 50px rgba(88, 97, 151, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-main);
+        background:
+          radial-gradient(circle at top left, rgba(255, 255, 255, 0.62), transparent 28%),
+          linear-gradient(115deg, var(--bg-left), var(--bg-right));
+      }
+
+      .terms-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+
+      .terms-card {
+        width: min(760px, 100%);
+        border-radius: 2rem;
+        background: var(--card-bg);
+        box-shadow: var(--shadow-soft);
+        padding: 2rem;
+      }
+
+      .terms-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.55rem 0.95rem;
+        border-radius: 999px;
+        background: rgba(245, 247, 255, 0.95);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .terms-title {
+        margin: 1rem 0 0.5rem;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+      }
+
+      .terms-intro {
+        margin: 0 0 1.5rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      .terms-list {
+        display: grid;
+        gap: 1rem;
+        max-height: 360px;
+        overflow-y: auto;
+        padding-right: 0.35rem;
+      }
+
+      .terms-item {
+        padding: 1rem 1.1rem;
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(232, 235, 244, 0.95);
+      }
+
+      .terms-item h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+
+      .terms-item p {
+        margin: 0;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .terms-actions {
+        margin-top: 1.5rem;
+      }
+
+      .acknowledge-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .read-note {
+        margin: 0 0 1rem;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 575.98px) {
+        .terms-card {
+          padding: 1.4rem;
+          border-radius: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="terms-shell">
+      <section class="terms-card">
+        <span class="terms-badge">Daily Quizz Terms</span>
+        <h1 class="terms-title">Terms and Conditions</h1>
+        <p class="terms-intro">
+          By creating an account for Daily Quizz, you agree to use the app
+          responsibly and respect the quiz experience for other players.
+        </p>
+
+        <p class="read-note">
+          Scroll through the full terms below to enable the acknowledgement button.
+        </p>
+
+        <div class="terms-list" id="termsScrollArea">
+          <article class="terms-item">
+            <h2>Account Use</h2>
+            <p>
+              You are responsible for keeping your login details safe and for
+              the activity that happens under your account.
+            </p>
+          </article>
+
+          <article class="terms-item">
+            <h2>Fair Play</h2>
+            <p>
+              You agree not to cheat, abuse scoring systems, or interfere with
+              other users' gameplay or access to the app.
+            </p>
+          </article>
+
+          <article class="terms-item">
+            <h2>Content and Progress</h2>
+            <p>
+              Quiz content, scores, streaks, and rewards may be updated,
+              changed, or reset as the app evolves and improves.
+            </p>
+          </article>
+
+          <article class="terms-item">
+            <h2>Respectful Use</h2>
+            <p>
+              Any misuse of the app, including harmful, offensive, or
+              disruptive behaviour, may result in account restrictions.
+            </p>
+          </article>
+
+          <article class="terms-item">
+            <h2>Updates to the Service</h2>
+            <p>
+              Daily Quizz may change gameplay, rewards, access features, or
+              interface elements as the product develops over time.
+            </p>
+          </article>
+
+          <article class="terms-item">
+            <h2>Acceptance</h2>
+            <p>
+              By continuing with account creation, you confirm that you have
+              reviewed these terms and agree to follow them while using the app.
+            </p>
+          </article>
+        </div>
+
+        <div class="terms-actions d-flex justify-content-end gap-2">
+          <button class="btn btn-outline-dark rounded-pill px-4" type="button" onclick="window.close()">
+            Cancel
+          </button>
+          <button
+            class="btn btn-dark rounded-pill px-4 acknowledge-btn"
+            id="acknowledgeTermsButton"
+            type="button"
+            disabled
+          >
+            I have read the terms
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const scrollArea = document.getElementById("termsScrollArea");
+      const acknowledgeButton = document.getElementById("acknowledgeTermsButton");
+
+      const toggleAcknowledgeButton = () => {
+        if (!scrollArea || !acknowledgeButton) {
+          return;
+        }
+
+        const reachedBottom =
+          scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 4;
+
+        if (reachedBottom) {
+          acknowledgeButton.disabled = false;
+        }
+      };
+
+      if (scrollArea) {
+        scrollArea.addEventListener("scroll", toggleAcknowledgeButton);
+        toggleAcknowledgeButton();
+      }
+
+      if (acknowledgeButton) {
+        acknowledgeButton.addEventListener("click", () => {
+          if (window.opener && window.location.origin === window.opener.location.origin) {
+            window.opener.postMessage(
+              { type: "daily-quizz-terms-read" },
+              window.location.origin
+            );
+          }
+
+          window.close();
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -323,6 +323,20 @@ body {
   color: #8f95ad;
 }
 
+.terms-check .form-check-input:disabled {
+  opacity: 0.65;
+}
+
+.terms-link {
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.terms-link:hover {
+  text-decoration: underline;
+}
+
 .submit-btn {
   padding: 1rem 1.25rem;
   border: 0;

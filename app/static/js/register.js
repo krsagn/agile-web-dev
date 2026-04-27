@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const toggleButtons = document.querySelectorAll("[data-password-toggle]");
+  const popupLinks = document.querySelectorAll("[data-popup-link]");
+  const registerForm = document.querySelector("#registerForm");
+  const termsCheckbox = document.querySelector("#termsAccepted");
+  const termsReadStatus = document.querySelector("#termsReadStatus");
+  const createAccountButton = document.querySelector("#createAccountButton");
 
   toggleButtons.forEach((button) => {
     const targetId = button.getAttribute("data-password-toggle");
@@ -26,4 +31,69 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  const syncTermsState = (hasReadTerms) => {
+    if (!termsCheckbox || !termsReadStatus || !createAccountButton) {
+      return;
+    }
+
+    termsCheckbox.disabled = !hasReadTerms;
+    termsReadStatus.value = hasReadTerms ? "yes" : "no";
+
+    if (hasReadTerms) {
+      termsCheckbox.checked = true;
+      createAccountButton.disabled = false;
+    } else {
+      termsCheckbox.checked = false;
+      createAccountButton.disabled = true;
+    }
+  };
+
+  syncTermsState(false);
+
+  popupLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const width = 760;
+      const height = 820;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const features = [
+        `width=${width}`,
+        `height=${height}`,
+        `left=${Math.max(0, left)}`,
+        `top=${Math.max(0, top)}`,
+        "resizable=yes",
+        "scrollbars=yes"
+      ].join(",");
+      const popup = window.open(link.href, "daily-quizz-terms", features);
+
+      if (!popup) {
+        window.location.href = link.href;
+      }
+    });
+  });
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) {
+      return;
+    }
+
+    if (event.data && event.data.type === "daily-quizz-terms-read") {
+      syncTermsState(true);
+    }
+  });
+
+  if (registerForm) {
+    registerForm.addEventListener("submit", (event) => {
+      const hasReadTerms = termsReadStatus && termsReadStatus.value === "yes";
+      const hasAcceptedTerms = termsCheckbox && termsCheckbox.checked;
+
+      if (!hasReadTerms || !hasAcceptedTerms) {
+        event.preventDefault();
+        syncTermsState(hasReadTerms);
+      }
+    });
+  }
 });

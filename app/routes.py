@@ -26,6 +26,10 @@ def login():
 def register():
     return render_template('register.html')
 
+@main.route('/terms')
+def terms():
+    return render_template('terms.html')
+
 @main.route('/auth/google', methods=['POST'])
 def auth_google():
     csrf_cookie = request.cookies.get("g_csrf_token")
