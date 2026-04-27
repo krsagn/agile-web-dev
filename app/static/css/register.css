@@ -96,6 +96,11 @@ body {
   letter-spacing: -0.03em;
 }
 
+.bi-arrow-left{
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
 .hero-copy {
   max-width: 33rem;
   margin: 4rem auto 0;
