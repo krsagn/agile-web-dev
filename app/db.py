@@ -70,6 +70,19 @@ def save_login_credentials(username, password_hash):
     db.commit()
 
 
+def find_registered_user_by_identifier(identifier):
+    return get_db().execute(
+        """
+        SELECT id, first_name, last_name, email, username, password_hash
+        FROM registered_users
+        WHERE username = ? OR email = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (identifier, identifier),
+    ).fetchone()
+
+
 def save_registered_user(first_name, last_name, email, username, password_hash, terms_read):
     created_at = datetime.now(timezone.utc).isoformat()
     db = get_db()

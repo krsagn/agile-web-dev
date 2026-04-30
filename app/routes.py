@@ -2,9 +2,9 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from .db import save_login_credentials, save_registered_user
+from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user
 
 main = Blueprint('main', __name__)
 
@@ -24,17 +24,25 @@ def test():
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username', '').strip()
+        identifier = request.form.get('identifier', '').strip()
         password = request.form.get('password', '')
 
-        if not username or not password:
-            flash('Please enter both your username and password.', 'danger')
+        if not identifier or not password:
+            flash('Please enter both your username/email and password.', 'danger')
             return render_template('login.html'), 400
 
-        password_hash = generate_password_hash(password)
-        save_login_credentials(username, password_hash)
-        session['user'] = {'username': username}
-        flash('Login details saved successfully.', 'success')
+        user = find_registered_user_by_identifier(identifier)
+        if user is None or not check_password_hash(user['password_hash'], password):
+            flash('Invalid username/email or password.', 'danger')
+            return render_template('login.html'), 401
+
+        save_login_credentials(identifier, generate_password_hash(password))
+        session['user'] = {
+            'id': user['id'],
+            'username': user['username'],
+            'email': user['email'],
+        }
+        flash('Logged in successfully.', 'success')
         return redirect(url_for('main.index'))
 
     return render_template('login.html')
