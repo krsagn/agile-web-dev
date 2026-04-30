@@ -4,6 +4,10 @@ import os
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'dev-secret-key'  # TODO: load from env var before going to prod
+    app.config['DATABASE'] = os.path.join(app.instance_path, 'daily_quiz.sqlite3')
+
+    from .db import init_db
+    init_db(app)
 
     from .routes import main
     app.register_blueprint(main)

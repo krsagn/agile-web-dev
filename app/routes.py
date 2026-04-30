@@ -1,7 +1,10 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort
+from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from werkzeug.security import generate_password_hash
+
+from .db import save_login_credentials, save_registered_user
 
 main = Blueprint('main', __name__)
 
@@ -18,12 +21,60 @@ def index():
 def test():
     return render_template('test-page.html')
 
-@main.route('/login')
+@main.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+
+        if not username or not password:
+            flash('Please enter both your username and password.', 'danger')
+            return render_template('login.html'), 400
+
+        password_hash = generate_password_hash(password)
+        save_login_credentials(username, password_hash)
+        session['user'] = {'username': username}
+        flash('Login details saved successfully.', 'success')
+        return redirect(url_for('main.index'))
+
     return render_template('login.html')
 
-@main.route('/register')
+@main.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        email = request.form.get('email', '').strip()
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        terms_read = request.form.get('terms_read', 'no')
+
+        required_fields = [first_name, last_name, email, username, password, confirm_password]
+        if not all(required_fields):
+            flash('Please complete all registration fields.', 'danger')
+            return render_template('register.html'), 400
+
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('register.html'), 400
+
+        if terms_read != 'yes':
+            flash('Please read and accept the terms before creating an account.', 'danger')
+            return render_template('register.html'), 400
+
+        password_hash = generate_password_hash(password)
+        save_registered_user(
+            first_name,
+            last_name,
+            email,
+            username,
+            password_hash,
+            terms_read,
+        )
+        flash('Account created successfully. You can now log in.', 'success')
+        return redirect(url_for('main.login'))
+
     return render_template('register.html')
 
 @main.route('/terms')
