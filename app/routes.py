@@ -92,3 +92,11 @@ def terms():
 @main.route('/quiz')
 def quiz():
     return render_template('quiz.html')
+
+@main.route('/profile')
+def profile():
+    return render_template('userProfile.html')
+
+@main.route('/results')
+def results():
+    return render_template('results.html')
