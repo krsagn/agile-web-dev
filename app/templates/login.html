@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
+  </head>
+  <body>
+    <main class="login-page">
+      <div class="container-fluid px-3 px-lg-4 py-3 py-lg-4">
+        <div class="login-shell mx-auto">
+          <div class="row g-0 login-layout">
+            <section class="col-12 col-lg-5 brand-panel">
+              <div class="brand-panel-inner">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-3">
+                    <span class="brand-mark">
+                      <i class="bi bi-hexagon-half"></i>
+                    </span>
+                    <span class="brand-name">Daily Quizz</span>
+                  </div>
+                  <button class="btn p-0 border-0 panel-back" type="button" onclick="window.history.back()">
+                    <i class="bi bi-arrow-left"></i>
+                  </button>
+                </div>
+
+                <div class="brand-copy">
+                  <span class="brand-tag">Welcome Back</span>
+                  <h1>Learn, play, and track your progress in one place.</h1>
+                  <p>
+                    Sign in to continue your quiz journey with the same soft,
+                    playful layout inspired by the reference screen.
+                  </p>
+                </div>
+
+                <div class="preview-card fact-card w-100">
+                  <div class="preview-header">
+                    <span>Daily Quiz Fun Fact</span>
+                    <span class="preview-pill">Random</span>
+                  </div>
+
+                  <div class="fact-copy">
+                    <span class="fact-label" id="factCategory">Quiz Mode</span>
+                    <h2 id="factTitle">Quick daily wins build strong streaks.</h2>
+                    <p id="factText">
+                      Daily Quiz gives you a fresh challenge every day, making
+                      steady practice feel more like play than revision.
+                    </p>
+                  </div> <br>
+
+                  <div class="fact-highlight">
+                    <span class="fact-highlight-label">Did you know?</span>
+                    <strong id="factHighlight">
+                      Answering quizzes regularly can improve recall speed over
+                      time.
+                    </strong>
+                  </div>
+                  <div class="row g-3 preview-stats fact-metrics">
+                    <div class="col-4">
+                      <div class="mini-stat">
+                        <i class="bi bi-calendar-check-fill"></i>
+                        <strong id="factMetricOneValue">365</strong>
+                        <span id="factMetricOneLabel">Fresh quiz sets</span>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="mini-stat">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <strong id="factMetricTwoValue">5 min</strong>
+                        <span id="factMetricTwoLabel">Quick challenge</span>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="mini-stat">
+                        <i class="bi bi-trophy-fill"></i>
+                        <strong id="factMetricThreeValue">1 streak</strong>
+                        <span id="factMetricThreeLabel">Worth keeping</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-12 col-lg-7 form-panel">
+              <div class="form-panel-inner">
+                <div class="form-panel-top">
+                  <a href="#" class="ghost-link">Need help?</a>
+                </div>
+
+                <div class="login-card">
+                  <div class="mb-4">
+                    <span class="login-kicker">Sign In</span>
+                    <h2 class="login-title">Log in to your account</h2>
+                    <p class="login-subtitle">
+                      Enter your details below to access your dashboard.
+                    </p>
+                  </div>
+
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      <div class="mb-3">
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category }} mb-2" role="alert">
+                            {{ message }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+
+                  <form class="login-form" action="{{ url_for('main.login') }}" method="post">
+                    <div class="mb-3">
+                      <label class="form-label" for="identifier">Username or email</label>
+                      <div class="input-group input-shell">
+                        <span class="input-group-text">
+                          <i class="bi bi-person-badge"></i>
+                        </span>
+                        <input
+                          class="form-control"
+                          id="identifier"
+                          name="identifier"
+                          type="text"
+                          placeholder="johnwillis or john@example.com"
+                          autocomplete="username"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0" for="password">Password</label>
+                        <a href="#" class="ghost-link small-link">Forgot password?</a>
+                      </div>
+                      <div class="input-group input-shell">
+                        <span class="input-group-text">
+                          <i class="bi bi-lock"></i>
+                        </span>
+                        <input
+                          class="form-control"
+                          id="password"
+                          name="password"
+                          type="password"
+                          placeholder="Enter your password"
+                          autocomplete="current-password"
+                          required
+                        />
+                        <button
+                          class="btn password-toggle"
+                          type="button"
+                          aria-label="Show password"
+                          data-password-toggle
+                        >
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4"
+                    >
+                      <div class="form-check remember-check m-0">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          value=""
+                          id="rememberMe"
+                        />
+                        <label class="form-check-label" for="rememberMe">
+                          Remember me
+                        </label>
+                      </div>
+                      <span class="secure-note">
+                        <i class="bi bi-shield-check"></i>
+                        Secure login
+                      </span>
+                    </div>
+
+                    <button class="btn login-btn w-100" type="submit">
+                      Log In
+                    </button>
+                  </form>
+
+                  <div class="divider">
+                    <span>or continue with</span>
+                  </div>
+
+                <div id="g_id_onload"
+                    data-client_id="327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com"
+                    data-login_uri="http://localhost:5000/auth/google"
+                    data-auto_prompt="false">
+                </div>
+
+                <div class="g_id_signin"
+                    data-type="standard"
+                    data-size="large"
+                    data-theme="outline"
+                    data-text="signup_with"
+                    data-shape="rectangular"
+                    data-logo_alignment="left">
+                </div>
+
+                  <p class="signup-copy">
+                    Don’t have an account?
+                    <a href="{{ url_for('main.register') }}">Create one</a>
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+
+  </body>
+</html>
