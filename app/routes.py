@@ -1,10 +1,10 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user
+from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes, add_sample_quizzes
 
 main = Blueprint('main', __name__)
 
@@ -93,6 +93,71 @@ def terms():
 def quiz():
     return render_template('quiz.html')
 
+@main.route('/api/quizzes')
+def get_quizzes():
+    # Ensure sample quizzes exist
+    add_sample_quizzes()
+    
+    quizzes = get_all_quizzes()
+    quiz_list = []
+    for quiz in quizzes:
+        quiz_list.append({
+            'question_id': quiz.question_id,
+            'question': quiz.question,
+            'options': {
+                'A': quiz.selection_a,
+                'B': quiz.selection_b,
+                'C': quiz.selection_c,
+                'D': quiz.selection_d,
+            },
+            'correct': quiz.correct_answer
+        })
+    return jsonify(quiz_list)
+
+@main.route('/api/submit-quiz', methods=['POST'])
+def submit_quiz():
+    data = request.json
+    user_answers = data.get('answers', {})
+    time_taken = data.get('time', 0)
+    
+    quizzes = get_all_quizzes()
+    
+    correct_count = 0
+    results = []
+    
+    for quiz in quizzes:
+        question_id = quiz.question_id
+        user_answer = user_answers.get(str(question_id), None)
+        is_correct = user_answer == quiz.correct_answer
+        
+        if is_correct:
+            correct_count += 1
+        
+        results.append({
+            'question_id': question_id,
+            'question': quiz.question,
+            'user_answer': user_answer,
+            'correct_answer': quiz.correct_answer,
+            'is_correct': is_correct,
+            'options': {
+                'A': quiz.selection_a,
+                'B': quiz.selection_b,
+                'C': quiz.selection_c,
+                'D': quiz.selection_d,
+            }
+        })
+    
+    # Store results in session
+    session['quiz_results'] = {
+        'score': correct_count,
+        'total': len(quizzes),
+        'percentage': (correct_count / len(quizzes) * 100) if quizzes else 0,
+        'time_taken': time_taken,
+        'details': results
+    }
+    
+    return jsonify({'success': True, 'score': correct_count, 'total': len(quizzes)})
+
 @main.route('/profile')
 def profile():
     return render_template('userProfile.html')
@@ -100,3 +165,10 @@ def profile():
 @main.route('/results')
 def results():
     return render_template('results.html')
+
+@main.route('/api/quiz-results')
+def get_quiz_results():
+    quiz_results = session.get('quiz_results', None)
+    if not quiz_results:
+        return jsonify({'quiz_results': None})
+    return jsonify({'quiz_results': quiz_results})
