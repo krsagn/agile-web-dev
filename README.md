@@ -46,13 +46,17 @@ The app includes several features to keep users engaged over time.
 
 ### Prerequisites
 
-- Python 3.x
+- Python 3.10 or newer
 - pip
 
 ### Setup
 
 ```bash
-# Clone the repo, then install dependencies
+# From the project root, create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -62,15 +66,33 @@ pip install -r requirements.txt
 python run.py
 ```
 
-The Flask development server will start at `http://127.0.0.1:5001`.
+The Flask development server will start at `http://127.0.0.1:5003`.
 
-| Route   | Description     |
-| ------- | --------------- |
-| `/`     | Home page       |
-| `/home` | Test/reference page |
+| Route       | Description          |
+| ----------- | -------------------- |
+| `/`         | Home page            |
+| `/home`     | Test/reference page  |
+| `/login`    | Login page           |
+| `/register` | Registration page    |
+| `/terms`    | Terms page           |
+| `/quiz`     | Quiz page            |
+| `/profile`  | User profile page    |
+| `/results`  | Quiz results page    |
 
 ---
 
 ## Running the Tests
 
-Not yet available.
+There is currently no automated test suite checked into the repository.
+
+When tests are added, run them from the project root after installing the project dependencies:
+
+```bash
+python -m pytest
+```
+
+If `pytest` is not installed, install it in your active virtual environment first:
+
+```bash
+pip install pytest
+```
