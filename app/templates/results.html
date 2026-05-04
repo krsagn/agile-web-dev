@@ -40,64 +40,59 @@
               <p class="text-muted">Great job! Here's how you performed in this quiz.</p>
               
               <div class="display-1 fw-bold text-warning my-3">
-                7<span class="fs-4 text-muted">/10</span>
+                <span id="score-display">0</span><span class="fs-4 text-muted">/10</span>
               </div>
-              <div class="badge bg-warning text-dark fs-6">70% Accuracy</div>
+              <div class="badge bg-warning text-dark fs-6" id="accuracy-display">0% Accuracy</div>
             </div>
           </div>
 
           <!-- Stats Row -->
           <div class="row mb-4">
-            <div class="col-4">
-              <div class="card h-100">
-                <div class="card-body text-center">
-                  <i class="bi bi-fire text-warning fs-1"></i>
-                  <div class="fs-4 fw-bold">5</div>
-                  <div class="text-muted small">Day Streak</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="card h-100">
-                <div class="card-body text-center">
-                  <i class="bi bi-star text-warning fs-1"></i>
-                  <div class="fs-4 fw-bold">320</div>
-                  <div class="text-muted small">Points</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-4">
+            <div class="col-6">
               <div class="card h-100">
                 <div class="card-body text-center">
                   <i class="bi bi-clock text-warning fs-1"></i>
-                  <div class="fs-4 fw-bold">2:45</div>
-                  <div class="text-muted small">Time</div>
+                  <div class="fs-4 fw-bold" id="time-display">0:00</div>
+                  <div class="text-muted small">Time Taken</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card h-100">
+                <div class="card-body text-center">
+                  <i class="bi bi-check-circle text-success fs-1" id="correct-icon"></i>
+                  <div class="fs-4 fw-bold" id="correct-count">0</div>
+                  <div class="text-muted small">Correct Answers</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Achievements -->
+          <!-- Answer Review -->
           <div class="card mb-4">
             <div class="card-header bg-white">
-              <h5 class="mb-0"><i class="bi bi-trophy text-warning me-2"></i>Achievement Unlocks</h5>
+              <h5 class="mb-0"><i class="bi bi-list-check text-warning me-2"></i>Answer Review</h5>
             </div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex align-items-center">
-                <span class="fs-3 me-3">🏆</span>
-                <div>
-                  <div class="fw-bold">Quick Thinker</div>
-                  <small class="text-muted">Complete quiz in under 3 minutes</small>
-                </div>
-              </li>
-              <li class="list-group-item d-flex align-items-center">
-                <span class="fs-3 me-3">🔥</span>
-                <div>
-                  <div class="fw-bold">On Fire</div>
-                  <small class="text-muted">5 day streak achieved</small>
-                </div>
-              </li>
-              <li class="list-group-item d-flex align-items-center opacity-50">
+            <div id="answers-container" class="list-group list-group-flush">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('main.quiz') }}" class="btn btn-warning text-dark flex-grow-1">
+              <i class="bi bi-arrow-clockwise me-1"></i> Retake Quiz
+            </a>
+            <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary flex-grow-1">
+              <i class="bi bi-person me-1"></i> Dashboard
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-house"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
                 <span class="fs-3 me-3">💎</span>
                 <div>
                   <div class="fw-bold">Perfect Score</div>
@@ -134,17 +129,75 @@
       crossorigin="anonymous"
     ></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-  </body>
-</html>
-                    <p class="result-description">Result description goes here...</p>
-                    <a href="#" class="result-link">View more</a>
-                </div>
-            </div>
-        </main>
 
-        <footer>
-            <p>&copy; 2026 Agile Web Dev. All rights reserved.</p>
-        </footer>
-    </div>
-</body>
-</html>
+    <script>
+      // Display quiz results from session
+      function displayResults() {
+        // Fetch results data from server
+        fetch('/api/quiz-results')
+          .then(response => response.json())
+          .then(data => {
+            if (!data || !data.quiz_results) {
+              document.querySelector('main .container').innerHTML = '<div class="alert alert-warning mt-5">No quiz results found. Please take a quiz first.</div>';
+              return;
+            }
+
+            const results = data.quiz_results;
+            const score = results.score;
+            const total = results.total;
+            const percentage = results.percentage;
+            const timeTaken = results.time_taken;
+            const details = results.details;
+
+            // Update score display
+            document.getElementById('score-display').textContent = score;
+            document.getElementById('accuracy-display').textContent = `${Math.round(percentage)}% Accuracy`;
+            
+            // Update time display
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            document.getElementById('time-display').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            
+            // Update correct count
+            document.getElementById('correct-count').textContent = score;
+
+            // Populate answer review
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+            
+            details.forEach((detail, idx) => {
+              const isCorrect = detail.is_correct;
+              const badgeClass = isCorrect ? 'bg-success' : 'bg-danger';
+              const icon = isCorrect ? 'bi-check-circle' : 'bi-x-circle';
+              const statusText = isCorrect ? 'Correct' : 'Incorrect';
+              
+              const answerItem = document.createElement('div');
+              answerItem.className = 'list-group-item p-3';
+              answerItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="fw-bold mb-1">Q${idx + 1}: ${detail.question}</h6>
+                  </div>
+                  <span class="badge ${badgeClass}"><i class="bi ${icon} me-1"></i>${statusText}</span>
+                </div>
+                <div class="ms-3 small">
+                  <div class="mb-2">
+                    <strong>Your answer:</strong> ${detail.user_answer ? detail.user_answer : 'Not answered'}
+                    ${detail.user_answer ? `- ${detail.options[detail.user_answer]}` : ''}
+                  </div>
+                  ${!isCorrect ? `<div class="text-success">
+                    <strong>Correct answer:</strong> ${detail.correct_answer} - ${detail.options[detail.correct_answer]}
+                  </div>` : ''}
+                </div>
+              `;
+              container.appendChild(answerItem);
+            });
+          })
+          .catch(error => {
+            console.error('Error loading results:', error);
+            document.querySelector('main .container').innerHTML = '<div class="alert alert-danger mt-5">Error loading quiz results. Please try again.</div>';
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', displayResults);
+    </script>

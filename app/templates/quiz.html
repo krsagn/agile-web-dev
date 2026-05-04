@@ -109,6 +109,10 @@
       let quizData = [];
       let currentQuestion = 0;
       let userAnswers = {};
+      let quizTimeLimit = 30 * 60; // 30 minutes in seconds
+      let elapsedTime = 0;
+      let timerInterval = null;
+      let quizFinished = false;
 
       async function fetchQuizzes() {
         try {
@@ -123,6 +127,7 @@
           
           // Load the first question
           loadQuestion(0);
+          startTimer();
         } catch (error) {
           console.error('Error fetching quizzes:', error);
           document.querySelector('main .container').innerHTML = '<div class="alert alert-danger mt-5">Error loading quizzes. Please try again later.</div>';
@@ -134,7 +139,7 @@
         
         const q = quizData[index];
         document.getElementById('q-text').textContent = q.question;
-        document.getElementById('q-category').textContent = 'Question';
+        document.getElementById('q-category').textContent = `Question ${index + 1}`;
         
         const options = document.querySelectorAll('.option-card');
         options.forEach(opt => {
@@ -158,8 +163,10 @@
         // Update buttons
         document.getElementById('prev-btn').disabled = index === 0;
         document.getElementById('next-btn').innerHTML = index === quizData.length - 1 
-          ? 'Finish Quiz <i class="bi bi-arrow-right ms-1"></i>' 
+          ? 'Finish Quiz <i class="bi bi-flag-fill ms-1"></i>' 
           : 'Next <i class="bi bi-arrow-right ms-1"></i>';
+        document.getElementById('next-btn').classList.toggle('btn-danger', index === quizData.length - 1);
+        document.getElementById('next-btn').classList.toggle('btn-warning', index !== quizData.length - 1);
       }
 
       // Option click handler
@@ -178,7 +185,7 @@
           
           // Update score preview
           const score = Object.keys(userAnswers).length;
-          document.getElementById('score-preview').textContent = `Score: ${score}`;
+          document.getElementById('score-preview').textContent = `Answered: ${score}/${quizData.length}`;
         });
       });
 
@@ -195,19 +202,65 @@
           currentQuestion++;
           loadQuestion(currentQuestion);
         } else {
-          // Finish quiz - redirect to results
-          window.location.href = "{{ url_for('main.results') }}";
+          // Finish quiz
+          finishQuiz();
         }
       });
 
-      // Initialize timer
-      let seconds = 0;
-      setInterval(() => {
-        seconds++;
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        document.getElementById('time-elapsed').textContent = `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
-      }, 1000);
+      function startTimer() {
+        timerInterval = setInterval(() => {
+          elapsedTime++;
+          const timeRemaining = quizTimeLimit - elapsedTime;
+          
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            finishQuiz();
+            return;
+          }
+          
+          const mins = Math.floor(timeRemaining / 60);
+          const secs = timeRemaining % 60;
+          document.getElementById('time-elapsed').textContent = `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
+          
+          // Change color when 5 minutes left
+          if (timeRemaining <= 300) {
+            document.getElementById('time-elapsed').classList.add('text-danger');
+          }
+        }, 1000);
+      }
+
+      async function finishQuiz() {
+        if (quizFinished) return;
+        quizFinished = true;
+        
+        clearInterval(timerInterval);
+        
+        // Prepare answers object with question_id as keys
+        const answers = {};
+        quizData.forEach((q, idx) => {
+          answers[q.question_id] = userAnswers[idx] || null;
+        });
+        
+        try {
+          const response = await fetch('/api/submit-quiz', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              answers: answers,
+              time: elapsedTime
+            })
+          });
+          
+          if (response.ok) {
+            window.location.href = "{{ url_for('main.results') }}";
+          }
+        } catch (error) {
+          console.error('Error submitting quiz:', error);
+          alert('Error submitting quiz. Please try again.');
+        }
+      }
 
       // Fetch quizzes when page loads
       document.addEventListener('DOMContentLoaded', fetchQuizzes);
