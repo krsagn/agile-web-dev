@@ -43,7 +43,7 @@ def login():
             'email': user['email'],
         }
         flash('Logged in successfully.', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.profile'))
 
     return render_template('login.html')
 
