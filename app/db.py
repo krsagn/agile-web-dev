@@ -34,6 +34,18 @@ class RegisteredUser(Base):
         return getattr(self, key)
 
 
+class Quiz(Base):
+    __tablename__ = "quizzes"
+
+    question_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    question: Mapped[str] = mapped_column(String, nullable=False)
+    selection_a: Mapped[str] = mapped_column(String, nullable=False)
+    selection_b: Mapped[str] = mapped_column(String, nullable=False)
+    selection_c: Mapped[str] = mapped_column(String, nullable=False)
+    selection_d: Mapped[str] = mapped_column(String, nullable=False)
+    correct_answer: Mapped[str] = mapped_column(String, nullable=False)
+
+
 engine = None
 SessionLocal = scoped_session(sessionmaker())
 
@@ -95,3 +107,8 @@ def save_registered_user(first_name, last_name, email, username, password_hash, 
     )
     db.add(user)
     db.commit()
+
+
+def get_all_quizzes():
+    db = get_db()
+    return db.execute(select(Quiz)).scalars().all()

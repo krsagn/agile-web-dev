@@ -1,10 +1,10 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user
+from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes
 
 main = Blueprint('main', __name__)
 
@@ -92,6 +92,24 @@ def terms():
 @main.route('/quiz')
 def quiz():
     return render_template('quiz.html')
+
+@main.route('/api/quizzes')
+def get_quizzes():
+    quizzes = get_all_quizzes()
+    quiz_list = []
+    for quiz in quizzes:
+        quiz_list.append({
+            'question_id': quiz.question_id,
+            'question': quiz.question,
+            'options': {
+                'A': quiz.selection_a,
+                'B': quiz.selection_b,
+                'C': quiz.selection_c,
+                'D': quiz.selection_d,
+            },
+            'correct': quiz.correct_answer
+        })
+    return jsonify(quiz_list)
 
 @main.route('/profile')
 def profile():

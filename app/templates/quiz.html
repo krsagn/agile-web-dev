@@ -105,29 +105,36 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <script>
-      // Simple quiz logic for demonstration
-      const quizData = [
-        {
-          question: "What is the primary purpose of the Agile Manifesto?",
-          category: "Agile",
-          options: {
-            A: "To define strict rules and procedures for software development",
-            B: "To prioritize individuals and interactions over processes and tools",
-            C: "To replace all documentation with working software",
-            D: "To eliminate the need for any planning in projects"
-          },
-          correct: "B"
-        },
-        // Add more questions here
-      ];
-
+      // Fetch quiz data from the database
+      let quizData = [];
       let currentQuestion = 0;
       let userAnswers = {};
 
+      async function fetchQuizzes() {
+        try {
+          const response = await fetch('/api/quizzes');
+          const data = await response.json();
+          quizData = data;
+          
+          if (quizData.length === 0) {
+            document.querySelector('main .container').innerHTML = '<div class="alert alert-warning mt-5">No quizzes available at the moment.</div>';
+            return;
+          }
+          
+          // Load the first question
+          loadQuestion(0);
+        } catch (error) {
+          console.error('Error fetching quizzes:', error);
+          document.querySelector('main .container').innerHTML = '<div class="alert alert-danger mt-5">Error loading quizzes. Please try again later.</div>';
+        }
+      }
+
       function loadQuestion(index) {
+        if (quizData.length === 0) return;
+        
         const q = quizData[index];
         document.getElementById('q-text').textContent = q.question;
-        document.getElementById('q-category').textContent = q.category;
+        document.getElementById('q-category').textContent = 'Question';
         
         const options = document.querySelectorAll('.option-card');
         options.forEach(opt => {
@@ -202,8 +209,9 @@
         document.getElementById('time-elapsed').textContent = `Time: ${mins}:${secs.toString().padStart(2, '0')}`;
       }, 1000);
 
-      // Load first question
-      loadQuestion(0);
+      // Fetch quizzes when page loads
+      document.addEventListener('DOMContentLoaded', fetchQuizzes);
+    </script>
     </script>
   </body>
 </html>

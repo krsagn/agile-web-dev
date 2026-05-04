@@ -38,7 +38,7 @@ The app includes several features to keep users engaged over time.
 | 24145866 | Kristian Agena        | [krsagn](https://github.com/krsagn)       |
 | 24950379 | Samuel Chiew          | [samuelclw](https://github.com/samuelclw) |
 | 24340515 | Kenneth Jones Stephan | [kjonesst](https://github.com/kjonesst)   |
-| 24480226 | Zetai Zhang           | [ZetaiZ](https://github.com/ZetaiZ)       |
+| 24480226 | Zetai Zhang           | [PonKSky234](https://github.com/PonKSky234)       |
 
 ---
 
