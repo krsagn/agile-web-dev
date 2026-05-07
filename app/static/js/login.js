@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const facts = [
     {
       category: "Streaks",
-      title: "Daily Quiz resets the challenge, not your momentum.",
-      text: "A new daily quiz gives players a clean shot each day while still rewarding consistency and repeat play.",
+      title: "Quokka resets the challenge, not your momentum.",
+      text: "A new Quokka round gives players a clean shot each day while still rewarding consistency and repeat play.",
       highlight: "Keeping a streak turns short quiz sessions into a long-term learning habit.",
       metrics: [
         { value: "24 hrs", label: "New challenge" },
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       category: "Learning",
-      title: "Daily Quiz makes revision feel more like a game round.",
+      title: "Quokka makes revision feel more like a game round.",
       text: "Small, repeatable quiz sessions reduce the friction of studying and make it easier to come back tomorrow.",
       highlight: "Frequent retrieval practice can help facts stick better than rereading alone.",
       metrics: [
@@ -37,9 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       category: "Retention",
-      title: "Daily Quiz works best when the reward loop is simple.",
+      title: "Quokka works best when the reward loop is simple.",
       text: "A clear prompt, a quick play session, and a visible reward are often enough to bring learners back regularly.",
-      highlight: "The most effective daily quiz flows are easy to begin and satisfying to finish.",
+      highlight: "The most effective Quokka flows are easy to begin and satisfying to finish.",
       metrics: [
         { value: "1 tap", label: "Start quickly" },
         { value: "Clear XP", label: "Visible reward" },

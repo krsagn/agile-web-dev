@@ -34,6 +34,8 @@ body {
 
 .login-page {
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 .login-shell {
@@ -63,16 +65,41 @@ body {
   padding: 2.5rem;
 }
 
+/* Quokka Branding */
 .brand-mark {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
+  border-radius: 16px 16px 18px 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(46, 41, 72, 0.08);
-  color: var(--accent);
-  font-size: 1.35rem;
+  background: linear-gradient(145deg, #f6cf86, #ffefb6);
+  color: #5c3c16;
+  font-size: 1.2rem;
+  font-weight: 900;
+  box-shadow: 0 12px 22px rgba(178, 119, 46, 0.18);
+  position: relative;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 14px;
+  height: 18px;
+  border-radius: 12px 12px 4px 4px;
+  background: #8b5e2b;
+}
+
+.brand-mark::before {
+  left: 7px;
+  transform: rotate(-14deg);
+}
+
+.brand-mark::after {
+  right: 7px;
+  transform: rotate(14deg);
 }
 
 .brand-name {
@@ -639,6 +666,67 @@ body {
   text-decoration: none;
 }
 
+.login-quokka-peek {
+  position: fixed;
+  right: clamp(-2.6rem, -2vw, -1rem);
+  bottom: clamp(-1.9rem, -1.8vw, -0.75rem);
+  z-index: 3;
+  width: clamp(9rem, 17vw, 14rem);
+  height: clamp(7.6rem, 13vw, 11rem);
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: 4rem 0 0 0;
+  filter: drop-shadow(0 18px 28px rgba(46, 41, 72, 0.18));
+  animation: quokka-peek-frame 4200ms ease-out both;
+}
+
+.login-quokka-peek img {
+  position: absolute;
+  top: clamp(-1.45rem, -1.8vw, -0.8rem);
+  left: clamp(-2.6rem, -3.3vw, -1.7rem);
+  width: clamp(16.2rem, 27vw, 22.5rem);
+  max-width: none;
+  user-select: none;
+  animation: quokka-peek-in 4200ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    quokka-gentle-bob 5600ms ease-in-out 4200ms infinite;
+}
+
+@keyframes quokka-peek-frame {
+  0% {
+    opacity: 0;
+  }
+
+  32%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes quokka-peek-in {
+  0% {
+    transform: translate(22px, 42px) rotate(1.4deg);
+  }
+
+  48% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes quokka-gentle-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-4px) rotate(-0.35deg);
+  }
+}
+
 @media (max-width: 991.98px) {
   .login-shell {
     border-radius: 2rem;
@@ -691,5 +779,18 @@ body {
   .login-card {
     padding: 1.4rem;
     border-radius: 1.5rem;
+  }
+
+  .login-quokka-peek {
+    width: 8.5rem;
+    height: 7.2rem;
+    right: -2.25rem;
+    bottom: -1.5rem;
+  }
+
+  .login-quokka-peek img {
+    width: 15.5rem;
+    top: -1rem;
+    left: -2.25rem;
   }
 }

@@ -1,4 +1,4 @@
-# daily-quiz-app
+# quokka-app
 
 ## About
 
