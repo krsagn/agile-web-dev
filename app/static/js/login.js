@@ -83,6 +83,36 @@ document.addEventListener("DOMContentLoaded", () => {
     factMetricThreeValue.textContent = selectedFact.metrics[2].value;
     factMetricThreeLabel.textContent = selectedFact.metrics[2].label;
   }
+// Reveal the Quokka!!
+  const quokkaPeek = document.querySelector(".login-quokka-peek");
+
+  if (quokkaPeek) {
+    let ticking = false;
+
+    const updateQuokkaReveal = () => {
+      const scrollableDistance =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const revealDistance = Math.min(Math.max(scrollableDistance, 1), 360);
+      const revealProgress = Math.min(window.scrollY / revealDistance, 1);
+
+      quokkaPeek.style.setProperty(
+        "--quokka-reveal",
+        revealProgress.toFixed(3)
+      );
+      ticking = false;
+    };
+
+    const requestQuokkaReveal = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateQuokkaReveal);
+        ticking = true;
+      }
+    };
+
+    updateQuokkaReveal();
+    window.addEventListener("scroll", requestQuokkaReveal, { passive: true });
+    window.addEventListener("resize", requestQuokkaReveal);
+  }
 
   if (!toggleButton || !passwordInput) {
     return;
