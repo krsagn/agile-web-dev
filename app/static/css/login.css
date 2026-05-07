@@ -670,18 +670,18 @@ body {
 
 .login-quokka-peek {
   position: fixed;
-  right: clamp(-2.6rem, -2vw, -1rem);
-  bottom: clamp(-0.5rem, -1.8vw, -0.75rem);
+  right: clamp(-2.4rem, -2.1vw, -1rem);
+  bottom: clamp(-1rem, -1.5vw, -0.35rem);
   z-index: 3;
   width: clamp(
-    9rem,
-    calc(17vw + (var(--quokka-reveal) * 8.5rem)),
-    22.5rem
+    8rem,
+    calc(15vw + (var(--quokka-reveal) * 8.25rem)),
+    21rem
   );
   height: clamp(
-    7.6rem,
-    calc(13vw + (var(--quokka-reveal) * 11.5rem)),
-    22.5rem
+    6.5rem,
+    calc(10vw + (var(--quokka-reveal) * 11rem)),
+    21rem
   );
   overflow: hidden;
   pointer-events: none;
@@ -694,7 +694,7 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: clamp(16.2rem, 27vw, 22.5rem);
+  width: clamp(15rem, 24vw, 21rem);
   max-width: none;
   user-select: none;
   animation: quokka-peek-in 4200ms cubic-bezier(0.22, 1, 0.36, 1) both,
@@ -738,6 +738,10 @@ body {
 }
 
 @media (max-width: 991.98px) {
+  .login-page {
+    padding-bottom: clamp(7rem, 24vh, 14rem);
+  }
+
   .login-shell {
     border-radius: 2rem;
   }
@@ -768,9 +772,24 @@ body {
     margin: 2rem auto 0;
     padding: 1.5rem;
   }
+
+  .login-quokka-peek {
+    right: -2rem;
+    bottom: -1rem;
+    width: calc(7.25rem + (var(--quokka-reveal) * 8.75rem));
+    height: calc(5.75rem + (var(--quokka-reveal) * 9.75rem));
+  }
+
+  .login-quokka-peek img {
+    width: clamp(13.5rem, 35vw, 17.5rem);
+  }
 }
 
 @media (max-width: 767.98px) {
+  .login-page {
+    padding-bottom: clamp(6.5rem, 22vh, 12rem);
+  }
+
   .login-shell {
     min-height: auto;
     border-radius: 1.5rem;
@@ -792,15 +811,46 @@ body {
   }
 
   .login-quokka-peek {
-    width: calc(8.5rem + (var(--quokka-reveal) * 7rem));
-    height: calc(3.2rem + (var(--quokka-reveal) * 8.3rem));
-    right: -2.25rem;
-    bottom: -1.5rem;
+    width: calc(6.5rem + (var(--quokka-reveal) * 7rem));
+    height: calc(5rem + (var(--quokka-reveal) * 8.25rem));
+    right: -1.75rem;
+    bottom: -1.15rem;
   }
 
   .login-quokka-peek img {
-    width: 15.5rem;
-    top: -1rem;
-    left: -2.25rem;
+    width: 13.5rem;
+    top: 0;
+    left: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .login-page {
+    padding-bottom: clamp(5.5rem, 20vh, 10rem);
+  }
+
+  .login-quokka-peek {
+    right: -1.55rem;
+    bottom: -1rem;
+    width: calc(5.6rem + (var(--quokka-reveal) * 5.9rem));
+    height: calc(4.4rem + (var(--quokka-reveal) * 6.9rem));
+    filter: drop-shadow(0 12px 18px rgba(46, 41, 72, 0.16));
+  }
+
+  .login-quokka-peek img {
+    width: 11.5rem;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .login-quokka-peek {
+    right: -1.35rem;
+    bottom: -0.9rem;
+    width: calc(5rem + (var(--quokka-reveal) * 4.75rem));
+    height: calc(3.9rem + (var(--quokka-reveal) * 5.85rem));
+  }
+
+  .login-quokka-peek img {
+    width: 9.75rem;
   }
 }
