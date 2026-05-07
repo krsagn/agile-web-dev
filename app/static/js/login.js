@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     factMetricThreeValue.textContent = selectedFact.metrics[2].value;
     factMetricThreeLabel.textContent = selectedFact.metrics[2].label;
   }
-// Reveal the Quokka!!
+  // Reveal the Quokka as the page reaches the bottom.
   const quokkaPeek = document.querySelector(".login-quokka-peek");
 
   if (quokkaPeek) {
@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "--quokka-reveal",
         revealProgress.toFixed(3)
       );
+
       ticking = false;
     };
 
@@ -112,6 +113,32 @@ document.addEventListener("DOMContentLoaded", () => {
     updateQuokkaReveal();
     window.addEventListener("scroll", requestQuokkaReveal, { passive: true });
     window.addEventListener("resize", requestQuokkaReveal);
+  }
+
+  const loginLayout = document.querySelector(".login-layout");
+  const grassFloor = document.querySelector(".login-grass-floor");
+
+  if (loginLayout && grassFloor) {
+    let ticking = false;
+
+    const updateGrassVisibility = () => {
+      const layoutBottom = loginLayout.getBoundingClientRect().bottom;
+      const hasScrolledPastLayout = layoutBottom <= window.innerHeight;
+
+      grassFloor.classList.toggle("is-visible", hasScrolledPastLayout);
+      ticking = false;
+    };
+
+    const requestGrassVisibility = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateGrassVisibility);
+        ticking = true;
+      }
+    };
+
+    updateGrassVisibility();
+    window.addEventListener("scroll", requestGrassVisibility, { passive: true });
+    window.addEventListener("resize", requestGrassVisibility);
   }
 
   if (!toggleButton || !passwordInput) {
