@@ -36,6 +36,7 @@
             <div class="card-body text-center">
               <h6 class="text-muted text-uppercase small">Quiz Complete</h6>
               <h2 class="fw-bold mb-3">Your Results</h2>
+              <div class="badge bg-light text-dark fs-6 mb-2" id="category-display">General Knowledge</div>
               <p class="text-muted">Great job! Here's how you performed in this quiz.</p>
               
               <div class="display-1 fw-bold text-warning my-3">
@@ -146,7 +147,11 @@
             const total = results.total;
             const percentage = results.percentage;
             const timeTaken = results.time_taken;
+            const category = results.category || 'General Knowledge';
             const details = results.details;
+
+            // Update category display
+            document.getElementById('category-display').textContent = `${category} Quiz`;
 
             // Update score display
             document.getElementById('score-display').textContent = score;

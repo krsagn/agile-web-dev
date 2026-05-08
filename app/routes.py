@@ -3,8 +3,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import select
 
-from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes, add_sample_quizzes
+from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes, add_sample_quizzes, get_db, Quiz
 
 main = Blueprint('main', __name__)
 
@@ -98,7 +99,12 @@ def get_quizzes():
     # Ensure sample quizzes exist
     add_sample_quizzes()
     
-    quizzes = get_all_quizzes()
+    category = request.args.get('category')
+    if category:
+        quizzes = get_db().execute(select(Quiz).where(Quiz.category == category)).scalars().all()
+    else:
+        quizzes = get_all_quizzes()
+    
     quiz_list = []
     for quiz in quizzes:
         quiz_list.append({
@@ -119,8 +125,12 @@ def submit_quiz():
     data = request.json
     user_answers = data.get('answers', {})
     time_taken = data.get('time', 0)
+    category = data.get('category')
     
-    quizzes = get_all_quizzes()
+    if category:
+        quizzes = get_db().execute(select(Quiz).where(Quiz.category == category)).scalars().all()
+    else:
+        quizzes = get_all_quizzes()
     
     correct_count = 0
     results = []
@@ -153,6 +163,7 @@ def submit_quiz():
         'total': len(quizzes),
         'percentage': (correct_count / len(quizzes) * 100) if quizzes else 0,
         'time_taken': time_taken,
+        'category': category,
         'details': results
     }
     
