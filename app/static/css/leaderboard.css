@@ -1,3 +1,30 @@
+/* View toggle */
+.view-toggle {
+    display: flex;
+    background: #eeeeee;
+    border-radius: 20px;
+    padding: 4px;
+    gap: 2px;
+}
+
+.toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 22px;
+    border-radius: 16px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #777;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background: white;
+    color: #2d2757;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
 /* Podium */
 .podium-row {
     display: flex;
