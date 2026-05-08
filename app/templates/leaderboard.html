@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard — Quokka</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/userProfile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboard.css') }}">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div class="sidebar">
+            <div>
+                <div class="logo-section">
+                    <div class="logo-box"></div>
+                    <div class="logo-text">Quokka</div>
+                </div>
+
+                <ul class="nav-links">
+                    <li>
+                        <a href="{{ url_for('main.profile') }}">
+                            <i class="bi bi-person"></i>Profile
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="{{ url_for('main.leaderboard') }}">
+                            <i class="bi bi-trophy"></i>Leaderboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-clock-history"></i>History
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.quiz') }}">
+                            <i class="bi bi-patch-question"></i>Quiz
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.results') }}">
+                            <i class="bi bi-bar-chart"></i>Results
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-profile">
+                <img src="https://via.placeholder.com/45" alt="Profile">
+                <div class="profile-name-small">John W.</div>
+            </div>
+        </div>
+
+        <main class="main-content">
+
+            <h1 class="page-title">Leaderboard</h1>
+
+            <!-- Podium -->
+            <div class="podium-row">
+                <!-- 2nd place -->
+                <div class="podium-card podium-silver">
+                    <div class="podium-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="podium-rank silver-rank">2</div>
+                    <div class="podium-name">Alex T.</div>
+                    <div class="podium-score">9,200 pts</div>
+                </div>
+
+                <!-- 1st place -->
+                <div class="podium-card podium-gold">
+                    <div class="podium-crown"><i class="bi bi-crown-fill"></i></div>
+                    <div class="podium-avatar large-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="podium-rank gold-rank">1</div>
+                    <div class="podium-name">Samuel C.</div>
+                    <div class="podium-score">10,500 pts</div>
+                </div>
+
+                <!-- 3rd place -->
+                <div class="podium-card podium-bronze">
+                    <div class="podium-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="podium-rank bronze-rank">3</div>
+                    <div class="podium-name">Maria L.</div>
+                    <div class="podium-score">8,750 pts</div>
+                </div>
+            </div>
+
+            <!-- Rankings Table -->
+            <div class="section-card">
+                <h2 class="section-title">All Rankings</h2>
+
+                <div class="leaderboard-table">
+
+                    <div class="lb-row lb-header">
+                        <span class="lb-rank">Rank</span>
+                        <span class="lb-user">Player</span>
+                        <span class="lb-score">Score</span>
+                        <span class="lb-streak">Streak</span>
+                        <span class="lb-quizzes">Quizzes</span>
+                    </div>
+
+                    <div class="lb-row lb-gold">
+                        <span class="lb-rank"><i class="bi bi-trophy-fill text-warning"></i> 1</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Samuel C.</div>
+                                <div class="lb-handle">@samuelclw</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">10,500</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>67</span>
+                        <span class="lb-quizzes">142</span>
+                    </div>
+
+                    <div class="lb-row lb-silver">
+                        <span class="lb-rank"><i class="bi bi-trophy-fill lb-silver-icon"></i> 2</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Alex T.</div>
+                                <div class="lb-handle">@alext99</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">9,200</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>34</span>
+                        <span class="lb-quizzes">98</span>
+                    </div>
+
+                    <div class="lb-row lb-bronze">
+                        <span class="lb-rank"><i class="bi bi-trophy-fill lb-bronze-icon"></i> 3</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Maria L.</div>
+                                <div class="lb-handle">@mariaL</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">8,750</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>21</span>
+                        <span class="lb-quizzes">87</span>
+                    </div>
+
+                    <div class="lb-row">
+                        <span class="lb-rank">4</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Jordan K.</div>
+                                <div class="lb-handle">@jordank</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">7,400</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>15</span>
+                        <span class="lb-quizzes">73</span>
+                    </div>
+
+                    <div class="lb-row">
+                        <span class="lb-rank">5</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Priya N.</div>
+                                <div class="lb-handle">@priyan</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">6,900</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>9</span>
+                        <span class="lb-quizzes">61</span>
+                    </div>
+
+                    <div class="lb-row">
+                        <span class="lb-rank">6</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Chris M.</div>
+                                <div class="lb-handle">@chrism</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">5,300</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>5</span>
+                        <span class="lb-quizzes">48</span>
+                    </div>
+
+                    <div class="lb-row">
+                        <span class="lb-rank">7</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">Taylor R.</div>
+                                <div class="lb-handle">@taylorr</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">4,150</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>3</span>
+                        <span class="lb-quizzes">39</span>
+                    </div>
+
+                    <div class="lb-row lb-you">
+                        <span class="lb-rank">12</span>
+                        <span class="lb-user">
+                            <div class="lb-avatar lb-avatar-you"><i class="bi bi-person-fill"></i></div>
+                            <div>
+                                <div class="lb-name">John W. <span class="you-badge">You</span></div>
+                                <div class="lb-handle">@johnw</div>
+                            </div>
+                        </span>
+                        <span class="lb-score fw-bold">1,820</span>
+                        <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>2</span>
+                        <span class="lb-quizzes">17</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
