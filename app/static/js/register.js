@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "resizable=yes",
         "scrollbars=yes"
       ].join(",");
-      const popup = window.open(link.href, "daily-quizz-terms", features);
+      const popup = window.open(link.href, "quokka-terms", features);
 
       if (!popup) {
         window.location.href = link.href;
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (event.data && event.data.type === "daily-quizz-terms-read") {
+    if (event.data && event.data.type === "quokka-terms-read") {
       syncTermsState(true);
     }
   });

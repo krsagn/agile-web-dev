@@ -1,8 +1,8 @@
-# daily-quiz-app
+# quokka-app
 
 ## About
 
-A web app that gives users a quiz per day across a range of categories. The goal is to make learning a daily habit by keeping sessions short, rewarding consistency, and tracking progress over time.
+Quokka is a web app that gives users a quiz per day across a range of categories. The goal is to make learning a daily habit by keeping sessions short, rewarding consistency, and tracking progress over time.
 
 ### How It Works
 
@@ -28,6 +28,24 @@ The app includes several features to keep users engaged over time.
 **Achievements** - Milestones are awarded for things like a first perfect score, a 10-day streak, or 100 questions answered.
 
 **Leaderboards** - Users can compare scores on a global leaderboard or against friends.
+
+### UI and Branding Updates
+
+The project has been rebranded from Daily Quiz to Quokka across the visible app interface.
+
+Recent login and registration page updates include:
+
+- Quokka-themed page titles, brand labels, copy, and terms wording.
+- A login page Quokka illustration that peeks from the bottom-right corner and gently reveals more of the character as the user scrolls.
+- A responsive grass floor layer on the login page that stays fixed to the bottom of the viewport and animates in after the login layout has been scrolled through.
+- A register page Quokka adventure illustration layered over the left side panel with the same soft entrance and idle bob animation style.
+- Responsive CSS breakpoints so the Quokka and grass artwork scale or crop cleanly on smaller screens.
+
+The current visual assets live in `app/static/img/`:
+
+- `quokka-login.png`
+- `quokka-grass-floor.png`
+- `quokka-register-adventure.png`
 
 ---
 

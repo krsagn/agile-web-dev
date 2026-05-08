@@ -58,6 +58,8 @@ body {
 .register-side-panel {
   background: rgba(255, 255, 255, 0.72);
   border-right: 1px solid rgba(238, 240, 247, 0.95);
+  position: relative;
+  overflow: hidden;
 }
 
 .register-form-panel {
@@ -71,6 +73,12 @@ body {
   padding: 2.5rem;
 }
 
+.register-side-inner {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
 .brand-stack {
   display: flex;
   flex-direction: column;
@@ -81,13 +89,37 @@ body {
 .brand-mark {
   width: 58px;
   height: 58px;
-  border-radius: 18px;
+  border-radius: 20px 20px 22px 15px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(46, 41, 72, 0.08);
-  color: var(--accent);
-  font-size: 1.7rem;
+  background: linear-gradient(145deg, #f6cf86, #ffefb6);
+  color: #5c3c16;
+  font-size: 1.45rem;
+  font-weight: 900;
+  box-shadow: 0 14px 26px rgba(178, 119, 46, 0.2);
+  position: relative;
+}
+
+.brand-mark::before,
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 17px;
+  height: 22px;
+  border-radius: 14px 14px 5px 5px;
+  background: #8b5e2b;
+}
+
+.brand-mark::before {
+  left: 10px;
+  transform: rotate(-14deg);
+}
+
+.brand-mark::after {
+  right: 10px;
+  transform: rotate(14deg);
 }
 
 .brand-name {
@@ -214,6 +246,62 @@ body {
 
 .benefit-item i {
   color: #5e55d6;
+}
+
+.register-quokka-peek {
+  position: absolute;
+  right: clamp(-5rem, -7vw, -2rem);
+  bottom: clamp(-2.75rem, -5vw, -1.25rem);
+  z-index: 2;
+  width: clamp(15rem, 29vw, 28rem);
+  pointer-events: none;
+  filter: drop-shadow(0 18px 28px rgba(46, 41, 72, 0.16));
+  animation: register-quokka-peek-frame 4200ms ease-out both;
+}
+
+.register-quokka-peek img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  user-select: none;
+  animation: register-quokka-peek-in 4200ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    register-quokka-gentle-bob 5600ms ease-in-out 4200ms infinite;
+}
+
+@keyframes register-quokka-peek-frame {
+  0% {
+    opacity: 0;
+  }
+
+  32%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes register-quokka-peek-in {
+  0% {
+    transform: translate(22px, 42px) rotate(1.4deg);
+  }
+
+  48% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes register-quokka-gentle-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-4px) rotate(-0.35deg);
+  }
 }
 
 .top-link-row {
@@ -429,6 +517,16 @@ body {
   .register-card {
     margin: 2rem auto 0;
   }
+
+  .register-side-inner {
+    padding-bottom: clamp(12rem, 32vw, 18rem);
+  }
+
+  .register-quokka-peek {
+    right: clamp(-4rem, -7vw, -2rem);
+    bottom: -2rem;
+    width: clamp(16rem, 42vw, 24rem);
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -449,5 +547,40 @@ body {
 
   .benefit-row {
     flex-direction: column;
+  }
+
+  .register-side-inner {
+    padding-bottom: clamp(10rem, 40vw, 15rem);
+  }
+
+  .register-quokka-peek {
+    right: -3.5rem;
+    bottom: -1.75rem;
+    width: clamp(14rem, 56vw, 21rem);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .register-side-inner {
+    padding-bottom: clamp(8rem, 42vw, 12rem);
+  }
+
+  .register-quokka-peek {
+    right: -3rem;
+    bottom: -1.4rem;
+    width: clamp(12rem, 62vw, 17rem);
+    filter: drop-shadow(0 12px 18px rgba(46, 41, 72, 0.14));
+  }
+}
+
+@media (max-width: 399.98px) {
+  .register-side-inner {
+    padding-bottom: 7rem;
+  }
+
+  .register-quokka-peek {
+    right: -2.7rem;
+    bottom: -1.2rem;
+    width: 13rem;
   }
 }
