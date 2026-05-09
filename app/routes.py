@@ -173,6 +173,10 @@ def submit_quiz():
 def profile():
     return render_template('userProfile.html')
 
+@main.route('/leaderboard')
+def leaderboard():
+    return render_template('leaderboard.html')
+
 @main.route('/results')
 def results():
     return render_template('results.html')
