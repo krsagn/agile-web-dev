@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 from flask import (
     Blueprint,
     render_template,
@@ -6,23 +7,22 @@ from flask import (
     redirect,
     url_for,
     session,
-    abort,
     flash,
     jsonify,
 )
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy import select
 
 from .db import (
+    db,
     find_registered_user_by_identifier,
     save_login_credentials,
     save_registered_user,
     get_all_quizzes,
     add_sample_quizzes,
-    get_db,
     Quiz,
+    QuizResult,
 )
 
 main = Blueprint("main", __name__)
@@ -101,14 +101,21 @@ def register():
             return render_template("register.html"), 400
 
         password_hash = generate_password_hash(password)
-        save_registered_user(
-            first_name,
-            last_name,
-            email,
-            username,
-            password_hash,
-            terms_read,
-        )
+        try:
+            save_registered_user(
+                first_name,
+                last_name,
+                email,
+                username,
+                password_hash,
+                terms_read,
+            )
+        except Exception:
+            flash("An account with that email or username already exists.", "danger")
+            return (
+                render_template("register.html", google_client_id=GOOGLE_CLIENT_ID),
+                409,
+            )
         flash("Account created successfully. You can now log in.", "success")
         return redirect(url_for("main.login"))
 
@@ -132,12 +139,7 @@ def get_quizzes():
 
     category = request.args.get("category")
     if category:
-        quizzes = (
-            get_db()
-            .execute(select(Quiz).where(Quiz.category == category))
-            .scalars()
-            .all()
-        )
+        quizzes = Quiz.query.filter_by(category=category).all()
     else:
         quizzes = get_all_quizzes()
 
@@ -167,12 +169,7 @@ def submit_quiz():
     category = data.get("category")
 
     if category:
-        quizzes = (
-            get_db()
-            .execute(select(Quiz).where(Quiz.category == category))
-            .scalars()
-            .all()
-        )
+        quizzes = Quiz.query.filter_by(category=category).all()
     else:
         quizzes = get_all_quizzes()
 
@@ -203,7 +200,21 @@ def submit_quiz():
             }
         )
 
-    # Store results in session
+    # Persist to DB if user is logged in
+    user = session.get("user")
+    if user:
+        result = QuizResult(
+            user_id=user["id"],
+            category=category or "General",
+            score=correct_count,
+            total=len(quizzes),
+            time_taken=time_taken,
+            completed_at=datetime.now(timezone.utc),
+        )
+        db.session.add(result)
+        db.session.commit()
+
+    # Store results in session for results page
     session["quiz_results"] = {
         "score": correct_count,
         "total": len(quizzes),
