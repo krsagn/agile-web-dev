@@ -1,0 +1,90 @@
+{% extends 'layout.html' %} {% set active_page = 'history' %} {% block title
+%}History — Quokka{% endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/history.css') }}"
+/>
+{% endblock %} {% block content %}
+<h1 class="page-title">History</h1>
+
+<section class="section-card">
+  <div class="history-header">
+    <h2 class="section-title mb-0">Past Quizzes</h2>
+    <span class="history-count">12 quizzes completed</span>
+  </div>
+
+  <!-- Empty state (shown when user has no history) -->
+  <div class="history-empty" style="display: none">
+    <i class="bi bi-clock-history"></i>
+    <p>No quizzes completed yet. Take your first quiz to get started!</p>
+  </div>
+
+  <div class="history-list">
+    <div class="history-entry">
+      <div class="history-category-icon science">
+        <i class="bi bi-eyedropper"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Science</div>
+        <div class="history-meta">2 May 2026 &middot; 2:14</div>
+      </div>
+      <div class="history-score high">10 / 10</div>
+    </div>
+
+    <div class="history-entry">
+      <div class="history-category-icon programming">
+        <i class="bi bi-code-slash"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Programming</div>
+        <div class="history-meta">1 May 2026 &middot; 3:45</div>
+      </div>
+      <div class="history-score high">9 / 10</div>
+    </div>
+
+    <div class="history-entry">
+      <div class="history-category-icon math">
+        <i class="bi bi-calculator"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Math</div>
+        <div class="history-meta">30 Apr 2026 &middot; 5:02</div>
+      </div>
+      <div class="history-score mid">7 / 10</div>
+    </div>
+
+    <div class="history-entry">
+      <div class="history-category-icon science">
+        <i class="bi bi-eyedropper"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Science</div>
+        <div class="history-meta">29 Apr 2026 &middot; 4:31</div>
+      </div>
+      <div class="history-score mid">6 / 10</div>
+    </div>
+
+    <div class="history-entry">
+      <div class="history-category-icon programming">
+        <i class="bi bi-code-slash"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Programming</div>
+        <div class="history-meta">28 Apr 2026 &middot; 2:58</div>
+      </div>
+      <div class="history-score high">8 / 10</div>
+    </div>
+
+    <div class="history-entry">
+      <div class="history-category-icon math">
+        <i class="bi bi-calculator"></i>
+      </div>
+      <div class="history-info">
+        <div class="history-title">Math</div>
+        <div class="history-meta">27 Apr 2026 &middot; 6:17</div>
+      </div>
+      <div class="history-score low">4 / 10</div>
+    </div>
+  </div>
+</section>
+{% endblock %}
