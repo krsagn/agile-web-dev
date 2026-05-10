@@ -33,7 +33,7 @@
                         </a>
                     </li>
                     <li{% if active_page == 'history' %} class="active"{% endif %}>
-                        <a href="#">
+                        <a href="{{ url_for('main.history') }}">
                             <i class="bi bi-clock-history"></i>History
                         </a>
                     </li>
