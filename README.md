@@ -78,6 +78,12 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Apply database migrations
+
+```bash
+flask db upgrade
+```
+
 ### Start the server
 
 ```bash
