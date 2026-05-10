@@ -409,3 +409,11 @@ def add_sample_quizzes():
         db.add(quiz)
     
     db.commit()
+
+def find_registered_user_by_id(user_id):
+    db = get_db()
+    return db.execute(
+        select(RegisteredUser)
+        .where(RegisteredUser.id == user_id)
+        .limit(1)
+    ).scalar_one_or_none()
