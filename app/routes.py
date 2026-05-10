@@ -27,10 +27,7 @@ from .db import (
 
 main = Blueprint("main", __name__)
 
-GOOGLE_CLIENT_ID = os.environ.get(
-    "GOOGLE_CLIENT_ID",
-    "327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com",
-)
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 
 
 @main.route("/")
@@ -67,7 +64,7 @@ def login():
         flash("Logged in successfully.", "success")
         return redirect(url_for("main.profile"))
 
-    return render_template("login.html")
+    return render_template('login.html', google_client_id=GOOGLE_CLIENT_ID)
 
 
 @main.route("/register", methods=["GET", "POST"])
@@ -117,6 +114,7 @@ def register():
 
     return render_template("register.html")
 
+    return render_template('register.html', google_client_id=GOOGLE_CLIENT_ID)
 
 @main.route("/terms")
 def terms():

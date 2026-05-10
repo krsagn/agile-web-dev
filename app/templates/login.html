@@ -125,6 +125,7 @@
                   {% endwith %}
 
                   <form class="login-form" action="{{ url_for('main.login') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                       <label class="form-label" for="identifier">Username or email</label>
                       <div class="input-group input-shell">
@@ -202,7 +203,7 @@
                   </div>
 
                 <div id="g_id_onload"
-                    data-client_id="327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com"
+                    data-client_id="{{ google_client_id }}"
                     data-login_uri="http://localhost:5000/auth/google"
                     data-auto_prompt="false">
                 </div>
