@@ -29,6 +29,7 @@ class RegisteredUser(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False)
 
     quiz_results = db.relationship("QuizResult", back_populates="user", lazy=True)
+    achievements = db.relationship("UserAchievement", back_populates="user", lazy=True)
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -61,3 +62,16 @@ class QuizResult(db.Model):
     completed_at = db.Column(db.DateTime(timezone=True), nullable=False)
 
     user = db.relationship("RegisteredUser", back_populates="quiz_results")
+
+
+class UserAchievement(db.Model):
+    __tablename__ = "user_achievements"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("registered_users.id"), nullable=False, index=True
+    )
+    achievement_key = db.Column(db.String, nullable=False)
+    earned_at = db.Column(db.DateTime(timezone=True), nullable=False)
+
+    user = db.relationship("RegisteredUser", back_populates="achievements")

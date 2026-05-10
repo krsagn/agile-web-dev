@@ -1,6 +1,13 @@
 from datetime import datetime, timezone
 
-from .models import db, LoginCredential, RegisteredUser, Quiz, QuizResult
+from .models import (
+    db,
+    LoginCredential,
+    RegisteredUser,
+    Quiz,
+    QuizResult,
+    UserAchievement,
+)
 
 
 def find_registered_user_by_identifier(identifier):

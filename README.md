@@ -27,7 +27,7 @@ The app includes several features to keep users engaged over time.
 
 **Achievements** - Milestones are awarded for things like a first perfect score, a 10-day streak, or 100 questions answered.
 
-**Leaderboards** - Users can compare scores on a global leaderboard or against friends.
+**Leaderboards** - Users can compare scores on a global leaderboard.
 
 ### UI and Branding Updates
 
