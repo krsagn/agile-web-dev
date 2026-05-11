@@ -28,10 +28,8 @@ from .db import (
 
 main = Blueprint("main", __name__)
 
-GOOGLE_CLIENT_ID = os.environ.get(
-    "GOOGLE_CLIENT_ID",
-    "327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com",
-)
+# Requires GOOGLE_CLIENT_ID in .env (see Discord for setup instructions)
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
 
 @main.route('/')
