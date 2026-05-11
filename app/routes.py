@@ -18,7 +18,6 @@ from .db import (
     db,
     find_registered_user_by_id,
     find_registered_user_by_identifier,
-    save_login_credentials,
     save_registered_user,
     get_all_quizzes,
     add_sample_quizzes,
@@ -57,7 +56,6 @@ def login():
             flash('Invalid username/email or password.', 'danger')
             return render_template('login.html'), 401
 
-        save_login_credentials(identifier, generate_password_hash(password))
         session['user'] = {
             'id': user['id'],
             'username': user['username'],

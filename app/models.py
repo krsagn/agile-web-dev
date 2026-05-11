@@ -3,15 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class LoginCredential(db.Model):
-    __tablename__ = "login_credentials"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String, nullable=False)
-    password_hash = db.Column(db.String, nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), nullable=False)
-
-
 class RegisteredUser(db.Model):
     __tablename__ = "registered_users"
 

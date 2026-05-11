@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from .models import (
     db,
-    LoginCredential,
     RegisteredUser,
     Quiz,
     QuizResult,
@@ -28,16 +27,6 @@ def save_registered_user(
         created_at=datetime.now(timezone.utc),
     )
     db.session.add(user)
-    db.session.commit()
-
-
-def save_login_credentials(username, password_hash):
-    credential = LoginCredential(
-        username=username,
-        password_hash=password_hash,
-        created_at=datetime.now(timezone.utc),
-    )
-    db.session.add(credential)
     db.session.commit()
 
 
