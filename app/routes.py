@@ -16,6 +16,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from .db import (
     db,
+    find_registered_user_by_id,
     find_registered_user_by_identifier,
     save_login_credentials,
     save_registered_user,
@@ -25,9 +26,7 @@ from .db import (
     QuizResult,
 )
 
-from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes, add_sample_quizzes
-
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+main = Blueprint("main", __name__)
 
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",
@@ -122,6 +121,17 @@ def terms():
 def quiz():
     return render_template('quiz.html')
 
+
+@main.route('/leaderboard')
+def leaderboard():
+    return render_template('leaderboard.html')
+
+
+@main.route('/history')
+def history():
+    return render_template('history.html')
+
+
 @main.route('/api/quizzes')
 def get_quizzes():
     # Ensure sample quizzes exist
@@ -183,7 +193,7 @@ def submit_quiz():
                 'C': quiz.selection_c,
                 'D': quiz.selection_d,
             }
-        )
+        })
 
     # Persist to DB if user is logged in
     user = session.get("user")
@@ -278,12 +288,3 @@ def get_quiz_results():
     if not quiz_results:
         return jsonify({"quiz_results": None})
     return jsonify({"quiz_results": quiz_results})
-
-from .db import (
-    find_registered_user_by_identifier,
-    find_registered_user_by_id,
-    save_login_credentials,
-    save_registered_user,
-    get_all_quizzes,
-    add_sample_quizzes
-)

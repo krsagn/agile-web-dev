@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 
 from .config import Config
-from .models import db
+from .models import db as sqlalchemy_db
 
 load_dotenv()
 
@@ -20,8 +20,8 @@ def create_app():
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
+    sqlalchemy_db.init_app(app)
+    migrate.init_app(app, sqlalchemy_db)
     csrf.init_app(app)
 
     from .routes import main
