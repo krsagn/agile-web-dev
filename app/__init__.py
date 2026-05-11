@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, session
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 
@@ -26,5 +26,10 @@ def create_app():
 
     from .routes import main
     app.register_blueprint(main)
+
+    @app.context_processor
+    def inject_current_user():
+        user = session.get('user')
+        return {'current_user': user}
 
     return app

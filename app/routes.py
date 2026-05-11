@@ -18,7 +18,6 @@ from .db import (
     db,
     find_registered_user_by_id,
     find_registered_user_by_identifier,
-    save_login_credentials,
     save_registered_user,
     get_all_quizzes,
     add_sample_quizzes,
@@ -28,18 +27,19 @@ from .db import (
 
 main = Blueprint("main", __name__)
 
-GOOGLE_CLIENT_ID = os.environ.get(
-    "GOOGLE_CLIENT_ID",
-    "327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com"
-)
+# Requires GOOGLE_CLIENT_ID in .env (see Discord for setup instructions)
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+
 
 @main.route('/')
 def index():
     return render_template('index.html')
 
+
 @main.route('/home')
 def test():
     return render_template('test-page.html')
+
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,7 +56,6 @@ def login():
             flash('Invalid username/email or password.', 'danger')
             return render_template('login.html'), 401
 
-        save_login_credentials(identifier, generate_password_hash(password))
         session['user'] = {
             'id': user['id'],
             'username': user['username'],
@@ -66,6 +65,7 @@ def login():
         return redirect(url_for('main.profile'))
 
     return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
+
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -78,7 +78,14 @@ def register():
         confirm_password = request.form.get('confirm_password', '')
         terms_read = request.form.get('terms_read', 'no')
 
-        required_fields = [first_name, last_name, email, username, password, confirm_password]
+        required_fields = [
+            first_name,
+            last_name,
+            email,
+            username,
+            password,
+            confirm_password,
+        ]
         if not all(required_fields):
             flash('Please complete all registration fields.', 'danger')
             return render_template('register.html'), 400
@@ -88,7 +95,9 @@ def register():
             return render_template('register.html'), 400
 
         if terms_read != 'yes':
-            flash('Please read and accept the terms before creating an account.', 'danger')
+            flash(
+                'Please read and accept the terms before creating an account.', 'danger'
+            )
             return render_template('register.html'), 400
 
         password_hash = generate_password_hash(password)
@@ -116,6 +125,7 @@ def register():
 @main.route('/terms')
 def terms():
     return render_template('terms.html')
+
 
 @main.route('/quiz')
 def quiz():
@@ -145,18 +155,21 @@ def get_quizzes():
 
     quiz_list = []
     for quiz in quizzes:
-        quiz_list.append({
-            'question_id': quiz.question_id,
-            'question': quiz.question,
-            'options': {
-                'A': quiz.selection_a,
-                'B': quiz.selection_b,
-                'C': quiz.selection_c,
-                'D': quiz.selection_d,
-            },
-            'correct': quiz.correct_answer
-        })
+        quiz_list.append(
+            {
+                'question_id': quiz.question_id,
+                'question': quiz.question,
+                'options': {
+                    'A': quiz.selection_a,
+                    'B': quiz.selection_b,
+                    'C': quiz.selection_c,
+                    'D': quiz.selection_d,
+                },
+                'correct': quiz.correct_answer,
+            }
+        )
     return jsonify(quiz_list)
+
 
 @main.route('/api/submit-quiz', methods=['POST'])
 def submit_quiz():
@@ -172,28 +185,30 @@ def submit_quiz():
 
     correct_count = 0
     results = []
-    
+
     for quiz in quizzes:
         question_id = quiz.question_id
         user_answer = user_answers.get(str(question_id), None)
         is_correct = user_answer == quiz.correct_answer
-        
+
         if is_correct:
             correct_count += 1
-        
-        results.append({
-            'question_id': question_id,
-            'question': quiz.question,
-            'user_answer': user_answer,
-            'correct_answer': quiz.correct_answer,
-            'is_correct': is_correct,
-            'options': {
-                'A': quiz.selection_a,
-                'B': quiz.selection_b,
-                'C': quiz.selection_c,
-                'D': quiz.selection_d,
+
+        results.append(
+            {
+                'question_id': question_id,
+                'question': quiz.question,
+                'user_answer': user_answer,
+                'correct_answer': quiz.correct_answer,
+                'is_correct': is_correct,
+                'options': {
+                    'A': quiz.selection_a,
+                    'B': quiz.selection_b,
+                    'C': quiz.selection_c,
+                    'D': quiz.selection_d,
+                },
             }
-        })
+        )
 
     # Persist to DB if user is logged in
     user = session.get("user")
@@ -218,8 +233,9 @@ def submit_quiz():
         "category": category,
         "details": results,
     }
-    
+
     return jsonify({'success': True, 'score': correct_count, 'total': len(quizzes)})
+
 
 @main.route('/profile')
 def profile():
@@ -236,37 +252,41 @@ def profile():
         flash('User account not found. Please log in again.', 'warning')
         return redirect(url_for('main.login'))
 
+    next_level_xp = 1000
+    best_score = max((r.score for r in user.quiz_results), default=0)
+    correct_answers = sum(r.score for r in user.quiz_results)
+
     profile_data = {
         'full_name': f'{user.first_name} {user.last_name}',
         'username': user.username,
         'email': user.email,
-        'level': 1,
-        'title': 'New Quokka',
-        'xp': 0,
-        'next_level_xp': 1000,
-        'xp_percent': 0,
-        'streak': 0,
-        'quiz_wins': 0,
-        'best_score': 0,
-        'correct_answers': 0
+        'level': user.level,
+        'title': 'New Quokka',  # TODO: derive title from level
+        'xp': user.xp,
+        'next_level_xp': next_level_xp,  # TODO: compute based on levelling curve
+        'xp_percent': min(round(user.xp / next_level_xp * 100), 100),
+        'streak': user.streak,
+        'quiz_wins': len(user.quiz_results),
+        'best_score': best_score,
+        'correct_answers': correct_answers,
     }
 
     achievements = [
         {
             'icon': 'bi-lightning-charge',
             'name': 'Fast Thinker',
-            'description': 'Finished a quiz quickly'
+            'description': 'Finished a quiz quickly',
         },
         {
             'icon': 'bi-fire',
             'name': 'Streak Master',
-            'description': 'Reached a 10 day streak'
+            'description': 'Reached a 10 day streak',
         },
         {
             'icon': 'bi-award',
             'name': 'Top Scorer',
-            'description': 'Scored above 1000 points'
-        }
+            'description': 'Scored above 1000 points',
+        },
     ]
 
     recent_history = session.get('quiz_results')
@@ -275,12 +295,14 @@ def profile():
         'userProfile.html',
         profile=profile_data,
         achievements=achievements,
-        recent_history=recent_history
+        recent_history=recent_history,
     )
+
 
 @main.route('/results')
 def results():
     return render_template('results.html')
+
 
 @main.route('/api/quiz-results')
 def get_quiz_results():

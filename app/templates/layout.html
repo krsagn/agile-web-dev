@@ -46,8 +46,12 @@
             </div>
 
             <div class="sidebar-profile">
-                <img src="https://via.placeholder.com/45" alt="Profile">
-                <div class="profile-name-small">Samuel C.</div>
+                <div class="profile-avatar-small">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="profile-name-small">
+                    {{ current_user.username if current_user else '' }}
+                </div>
             </div>
         </div>
 
