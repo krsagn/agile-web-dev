@@ -1,20 +1,30 @@
-from flask import Flask
 import os
+
+from dotenv import load_dotenv
+from flask import Flask
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
+
+from .config import Config
+from .models import db as sqlalchemy_db
+
+load_dotenv()
+
+csrf = CSRFProtect()
+migrate = Migrate()
+
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'dev-secret-key'  # TODO: load from env var before going to prod
-    app.config['DATABASE'] = os.path.join(app.instance_path, 'daily_quiz.sqlite3')
+    app.config.from_object(Config)
 
-    from .db import init_db
-    init_db(app)
+    os.makedirs(app.instance_path, exist_ok=True)
+
+    sqlalchemy_db.init_app(app)
+    migrate.init_app(app, sqlalchemy_db)
+    csrf.init_app(app)
 
     from .routes import main
     app.register_blueprint(main)
 
     return app
-
-GOOGLE_CLIENT_ID = os.environ.get(
-    "GOOGLE_CLIENT_ID",
-    "327860289516-5pnn1vlr17acsttkv8miat03hsl40ahd.apps.googleusercontent.com"
-)

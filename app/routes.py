@@ -1,12 +1,32 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, session, abort, flash, jsonify
+from datetime import datetime, timezone
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    jsonify,
+)
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .db import find_registered_user_by_identifier, save_login_credentials, save_registered_user, get_all_quizzes, add_sample_quizzes
+from .db import (
+    db,
+    find_registered_user_by_id,
+    find_registered_user_by_identifier,
+    save_login_credentials,
+    save_registered_user,
+    get_all_quizzes,
+    add_sample_quizzes,
+    Quiz,
+    QuizResult,
+)
 
-main = Blueprint('main', __name__)
+main = Blueprint("main", __name__)
 
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",
@@ -45,7 +65,7 @@ def login():
         flash('Logged in successfully.', 'success')
         return redirect(url_for('main.profile'))
 
-    return render_template('login.html')
+    return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -72,18 +92,26 @@ def register():
             return render_template('register.html'), 400
 
         password_hash = generate_password_hash(password)
-        save_registered_user(
-            first_name,
-            last_name,
-            email,
-            username,
-            password_hash,
-            terms_read,
-        )
-        flash('Account created successfully. You can now log in.', 'success')
-        return redirect(url_for('main.login'))
+        try:
+            save_registered_user(
+                first_name,
+                last_name,
+                email,
+                username,
+                password_hash,
+                terms_read,
+            )
+        except Exception:
+            flash("An account with that email or username already exists.", "danger")
+            return (
+                render_template("register.html", google_client_id=GOOGLE_CLIENT_ID),
+                409,
+            )
+        flash("Account created successfully. You can now log in.", "success")
+        return redirect(url_for("main.login"))
 
-    return render_template('register.html')
+    return render_template("register.html", google_client_id=GOOGLE_CLIENT_ID)
+
 
 @main.route('/terms')
 def terms():
@@ -93,12 +121,28 @@ def terms():
 def quiz():
     return render_template('quiz.html')
 
+
+@main.route('/leaderboard')
+def leaderboard():
+    return render_template('leaderboard.html')
+
+
+@main.route('/history')
+def history():
+    return render_template('history.html')
+
+
 @main.route('/api/quizzes')
 def get_quizzes():
     # Ensure sample quizzes exist
     add_sample_quizzes()
-    
-    quizzes = get_all_quizzes()
+
+    category = request.args.get("category")
+    if category:
+        quizzes = Quiz.query.filter_by(category=category).all()
+    else:
+        quizzes = get_all_quizzes()
+
     quiz_list = []
     for quiz in quizzes:
         quiz_list.append({
@@ -117,11 +161,15 @@ def get_quizzes():
 @main.route('/api/submit-quiz', methods=['POST'])
 def submit_quiz():
     data = request.json
-    user_answers = data.get('answers', {})
-    time_taken = data.get('time', 0)
-    
-    quizzes = get_all_quizzes()
-    
+    user_answers = data.get("answers", {})
+    time_taken = data.get("time", 0)
+    category = data.get("category")
+
+    if category:
+        quizzes = Quiz.query.filter_by(category=category).all()
+    else:
+        quizzes = get_all_quizzes()
+
     correct_count = 0
     results = []
     
@@ -146,21 +194,89 @@ def submit_quiz():
                 'D': quiz.selection_d,
             }
         })
-    
-    # Store results in session
-    session['quiz_results'] = {
-        'score': correct_count,
-        'total': len(quizzes),
-        'percentage': (correct_count / len(quizzes) * 100) if quizzes else 0,
-        'time_taken': time_taken,
-        'details': results
+
+    # Persist to DB if user is logged in
+    user = session.get("user")
+    if user:
+        result = QuizResult(
+            user_id=user["id"],
+            category=category or "General",
+            score=correct_count,
+            total=len(quizzes),
+            time_taken=time_taken,
+            completed_at=datetime.now(timezone.utc),
+        )
+        db.session.add(result)
+        db.session.commit()
+
+    # Store results in session for results page
+    session["quiz_results"] = {
+        "score": correct_count,
+        "total": len(quizzes),
+        "percentage": (correct_count / len(quizzes) * 100) if quizzes else 0,
+        "time_taken": time_taken,
+        "category": category,
+        "details": results,
     }
     
     return jsonify({'success': True, 'score': correct_count, 'total': len(quizzes)})
 
 @main.route('/profile')
 def profile():
-    return render_template('userProfile.html')
+    session_user = session.get('user')
+
+    if not session_user:
+        flash('Please log in first.', 'warning')
+        return redirect(url_for('main.login'))
+
+    user = find_registered_user_by_id(session_user['id'])
+
+    if user is None:
+        session.clear()
+        flash('User account not found. Please log in again.', 'warning')
+        return redirect(url_for('main.login'))
+
+    profile_data = {
+        'full_name': f'{user.first_name} {user.last_name}',
+        'username': user.username,
+        'email': user.email,
+        'level': 1,
+        'title': 'New Quokka',
+        'xp': 0,
+        'next_level_xp': 1000,
+        'xp_percent': 0,
+        'streak': 0,
+        'quiz_wins': 0,
+        'best_score': 0,
+        'correct_answers': 0
+    }
+
+    achievements = [
+        {
+            'icon': 'bi-lightning-charge',
+            'name': 'Fast Thinker',
+            'description': 'Finished a quiz quickly'
+        },
+        {
+            'icon': 'bi-fire',
+            'name': 'Streak Master',
+            'description': 'Reached a 10 day streak'
+        },
+        {
+            'icon': 'bi-award',
+            'name': 'Top Scorer',
+            'description': 'Scored above 1000 points'
+        }
+    ]
+
+    recent_history = session.get('quiz_results')
+
+    return render_template(
+        'userProfile.html',
+        profile=profile_data,
+        achievements=achievements,
+        recent_history=recent_history
+    )
 
 @main.route('/results')
 def results():
@@ -170,5 +286,5 @@ def results():
 def get_quiz_results():
     quiz_results = session.get('quiz_results', None)
     if not quiz_results:
-        return jsonify({'quiz_results': None})
-    return jsonify({'quiz_results': quiz_results})
+        return jsonify({"quiz_results": None})
+    return jsonify({"quiz_results": quiz_results})
