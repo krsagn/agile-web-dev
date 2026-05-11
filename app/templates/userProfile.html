@@ -1,111 +1,120 @@
-{% extends 'layout.html' %}
-{% set active_page = 'profile' %}
-
-{% block title %}Profile — Quokka{% endblock %}
-
-{% block content %}
+{% extends 'layout.html' %} {% set active_page = 'profile' %} {% block title
+%}Profile — Quokka{% endblock %} {% block content %}
 <h1 class="page-title">Profile</h1>
 
 <section class="profile-card">
-    <div class="profile-header">
-        <div class="profile-avatar">
-            <i class="bi bi-person-fill"></i>
-        </div>
-
-        <div class="profile-info">
-            <h2>Samuel Chiew</h2>
-            <p>@samuelclw</p>
-            <span class="level-badge">Level 100, Mafia Boss</span>
-        </div>
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <i class="bi bi-person-fill"></i>
     </div>
 
-    <div class="xp-section">
-        <div class="xp-text">
-            <span>XP Progress</span>
-            <span>3000 / 8000 XP</span>
-        </div>
-
-        <div class="progress">
-            <div class="progress-bar" style="width: 37.5%;"></div>
-        </div>
+    <div class="profile-info">
+      <h2>{{ profile.full_name }}</h2>
+      <p>@{{ profile.username }}</p>
+      <p>{{ profile.email }}</p>
+      <span class="level-badge">
+        Level {{ profile.level }}, {{ profile.title }}
+      </span>
     </div>
+  </div>
+
+  <div class="xp-section">
+    <div class="xp-text">
+      <span>XP Progress</span>
+      <span>{{ profile.xp }} / {{ profile.next_level_xp }} XP</span>
+    </div>
+
+    <div class="progress">
+      <div
+        class="progress-bar"
+        id="xpProgressBar"
+        data-xp-percent="{{ profile.xp_percent | default(0) }}"
+      ></div>
+    </div>
+  </div>
 </section>
 
 <section class="stats-grid">
-    <div class="stat-card">
-        <i class="bi bi-fire"></i>
-        <h3>67</h3>
-        <p>Day Streak</p>
-    </div>
+  <div class="stat-card">
+    <i class="bi bi-fire"></i>
+    <h3>{{ profile.streak }}</h3>
+    <p>Day Streak</p>
+  </div>
 
-    <div class="stat-card">
-        <i class="bi bi-trophy"></i>
-        <h3>67</h3>
-        <p>Quiz Wins</p>
-    </div>
+  <div class="stat-card">
+    <i class="bi bi-trophy"></i>
+    <h3>{{ profile.quiz_wins }}</h3>
+    <p>Quiz Wins</p>
+  </div>
 
-    <div class="stat-card">
-        <i class="bi bi-star"></i>
-        <h3>9000</h3>
-        <p>Best Score</p>
-    </div>
+  <div class="stat-card">
+    <i class="bi bi-star"></i>
+    <h3>{{ profile.best_score }}</h3>
+    <p>Best Score</p>
+  </div>
 
-    <div class="stat-card">
-        <i class="bi bi-check-circle"></i>
-        <h3>4</h3>
-        <p>Correct Answers</p>
-    </div>
+  <div class="stat-card">
+    <i class="bi bi-check-circle"></i>
+    <h3>{{ profile.correct_answers }}</h3>
+    <p>Correct Answers</p>
+  </div>
 </section>
 
 <section class="section-card">
-    <h2 class="section-title">Achievements</h2>
+  <h2 class="section-title">Achievements</h2>
 
-    <div class="achievement-list">
-        <div class="achievement-item">
-            <i class="bi bi-lightning-charge"></i>
-            <h4>Fast Thinker</h4>
-            <p>Finished a quiz quickly</p>
-        </div>
-
-        <div class="achievement-item">
-            <i class="bi bi-fire"></i>
-            <h4>Streak Master</h4>
-            <p>Reached a 10 day streak</p>
-        </div>
-
-        <div class="achievement-item">
-            <i class="bi bi-award"></i>
-            <h4>Top Scorer</h4>
-            <p>Scored above 1000 points</p>
-        </div>
+  <div class="achievement-list">
+    {% for achievement in achievements %}
+    <div class="achievement-item">
+      <i class="bi {{ achievement.icon }}"></i>
+      <h4>{{ achievement.name }}</h4>
+      <p>{{ achievement.description }}</p>
     </div>
+    {% else %}
+    <p>No achievements yet. Complete quizzes to unlock achievements.</p>
+    {% endfor %}
+  </div>
 </section>
 
 <section class="section-card">
-    <h2 class="section-title">Recent Quiz History</h2>
+  <h2 class="section-title">Recent Quiz History</h2>
 
-    <div class="history-row">
-        <div>
-            <div class="history-title">Science Quiz</div>
-            <div class="history-date">Today</div>
-        </div>
-        <div class="history-score">8 / 10</div>
+  {% if recent_history %}
+  <div class="history-row">
+    <div>
+      <div class="history-title">Latest Quiz</div>
+      <div class="history-date">Current session</div>
     </div>
+    <div class="history-score">
+      {{ recent_history.score }} / {{ recent_history.total }}
+    </div>
+  </div>
 
-    <div class="history-row">
-        <div>
-            <div class="history-title">Programming Quiz</div>
-            <div class="history-date">Yesterday</div>
-        </div>
-        <div class="history-score">7 / 10</div>
+  <div class="history-row">
+    <div>
+      <div class="history-title">Accuracy</div>
+      <div class="history-date">Latest result</div>
     </div>
+    <div class="history-score">{{ recent_history.percentage | round(0) }}%</div>
+  </div>
 
-    <div class="history-row">
-        <div>
-            <div class="history-title">Math Quiz</div>
-            <div class="history-date">2 days ago</div>
-        </div>
-        <div class="history-score">9 / 10</div>
+  <div class="history-row">
+    <div>
+      <div class="history-title">Time Taken</div>
+      <div class="history-date">Latest result</div>
     </div>
+    <div class="history-score">{{ recent_history.time_taken }} seconds</div>
+  </div>
+  {% else %}
+  <p>No quiz history yet. Complete a quiz to see your results here.</p>
+  {% endif %}
 </section>
+
+<script>
+  const xpProgressBar = document.getElementById("xpProgressBar");
+  if (xpProgressBar) {
+    const xpPercent = xpProgressBar.dataset.xpPercent || 0;
+    xpProgressBar.style.width = `${xpPercent}%`;
+  }
+</script>
 {% endblock %}
