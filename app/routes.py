@@ -253,3 +253,12 @@ def get_quiz_results():
     if not quiz_results:
         return jsonify({"quiz_results": None})
     return jsonify({"quiz_results": quiz_results})
+
+from .db import (
+    find_registered_user_by_identifier,
+    find_registered_user_by_id,
+    save_login_credentials,
+    save_registered_user,
+    get_all_quizzes,
+    add_sample_quizzes
+)

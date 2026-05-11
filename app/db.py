@@ -304,6 +304,23 @@ def add_sample_quizzes():
     for q in programming_questions:
         db.session.add(Quiz(category="Programming", **q))
     for q in math_questions:
-        db.session.add(Quiz(category="Math", **q))
+        quiz = Quiz(
+            category="Math",
+            question=q["question"],
+            selection_a=q["selection_a"],
+            selection_b=q["selection_b"],
+            selection_c=q["selection_c"],
+            selection_d=q["selection_d"],
+            correct_answer=q["correct_answer"]
+        )
+        db.add(quiz)
+    
+    db.commit()
 
-    db.session.commit()
+def find_registered_user_by_id(user_id):
+    db = get_db()
+    return db.execute(
+        select(RegisteredUser)
+        .where(RegisteredUser.id == user_id)
+        .limit(1)
+    ).scalar_one_or_none()
