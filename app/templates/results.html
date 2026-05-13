@@ -47,6 +47,13 @@
             </div>
           </div>
 
+          <div class="card mb-4 d-none" id="new-achievements-card">
+            <div class="card-header bg-white">
+              <h5 class="mb-0"><i class="bi bi-award text-warning me-2"></i>New Quokka Badges</h5>
+            </div>
+            <div class="list-group list-group-flush" id="new-achievements-list"></div>
+          </div>
+
           <!-- Stats Row -->
           <div class="row mb-4">
             <div class="col-6">
@@ -150,6 +157,7 @@
             const timeTaken = results.time_taken;
             const category = results.category || 'General Knowledge';
             const details = results.details;
+            const newAchievements = results.new_achievements || [];
 
             // Update category display
             document.getElementById('category-display').textContent = `${category} Quiz`;
@@ -165,6 +173,27 @@
             
             // Update correct count
             document.getElementById('correct-count').textContent = score;
+
+            const achievementsCard = document.getElementById('new-achievements-card');
+            const achievementsList = document.getElementById('new-achievements-list');
+            achievementsList.innerHTML = '';
+            if (newAchievements.length > 0) {
+              achievementsCard.classList.remove('d-none');
+              newAchievements.forEach(achievement => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item d-flex align-items-center gap-3 p-3';
+                item.innerHTML = `
+                  <div class="brand-mark flex-shrink-0" aria-hidden="true">Q</div>
+                  <div>
+                    <div class="fw-bold">${achievement.name}</div>
+                    <small class="text-muted">${achievement.quokka}: ${achievement.description}</small>
+                  </div>
+                `;
+                achievementsList.appendChild(item);
+              });
+            } else {
+              achievementsCard.classList.add('d-none');
+            }
 
             // Populate answer review
             const container = document.getElementById('answers-container');
