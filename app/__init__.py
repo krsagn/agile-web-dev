@@ -1,7 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, session
+from flask import Flask
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 
@@ -12,6 +13,9 @@ load_dotenv()
 
 csrf = CSRFProtect()
 migrate = Migrate()
+login_manager = LoginManager()
+login_manager.login_view = "main.login"
+login_manager.login_message_category = "warning"
 
 
 def create_app():
@@ -23,13 +27,18 @@ def create_app():
     sqlalchemy_db.init_app(app)
     migrate.init_app(app, sqlalchemy_db)
     csrf.init_app(app)
+    login_manager.init_app(app)
 
     from .routes import main
     app.register_blueprint(main)
 
-    @app.context_processor
-    def inject_current_user():
-        user = session.get('user')
-        return {'current_user': user}
+    from .db import find_registered_user_by_id
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        try:
+            return find_registered_user_by_id(int(user_id))
+        except (TypeError, ValueError):
+            return None
 
     return app

@@ -1,9 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
 
-class RegisteredUser(db.Model):
+class RegisteredUser(UserMixin, db.Model):
     __tablename__ = "registered_users"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

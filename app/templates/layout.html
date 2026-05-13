@@ -42,6 +42,13 @@
                             <i class="bi bi-patch-question"></i>Quiz
                         </a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li>
+                        <a href="{{ url_for('main.logout') }}">
+                            <i class="bi bi-box-arrow-right"></i>Logout
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
 
@@ -50,7 +57,7 @@
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="profile-name-small">
-                    {{ current_user.username if current_user else '' }}
+                    {{ current_user.username if current_user.is_authenticated else '' }}
                 </div>
             </div>
         </div>
