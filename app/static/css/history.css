@@ -51,6 +51,11 @@
   background: #fef3e8;
   color: #f59e0b;
 }
+.history-category-icon.general,
+.history-category-icon:not([class*=" "]) {
+  background: #f0f0f5;
+  color: #6c757d;
+}
 
 .history-info {
   flex: 1;

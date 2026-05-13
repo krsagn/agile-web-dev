@@ -1,90 +1,106 @@
-{% extends 'layout.html' %} {% set active_page = 'history' %} {% block title
-%}History — Quokka{% endblock %} {% block extra_css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/history.css') }}"
-/>
-{% endblock %} {% block content %}
+{% extends 'layout.html' %}
+{% set active_page = 'history' %}
+
+{% block title %}History — Quokka{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/history.css') }}">
+{% endblock %}
+
+{% block content %}
 <h1 class="page-title">History</h1>
 
 <section class="section-card">
   <div class="history-header">
     <h2 class="section-title mb-0">Past Quizzes</h2>
-    <span class="history-count">12 quizzes completed</span>
+    <span class="history-count" id="history-count"></span>
   </div>
 
-  <!-- Empty state (shown when user has no history) -->
-  <div class="history-empty" style="display: none">
+  <div class="history-empty" id="history-empty" style="display: none">
     <i class="bi bi-clock-history"></i>
     <p>No quizzes completed yet. Take your first quiz to get started!</p>
   </div>
 
-  <div class="history-list">
-    <div class="history-entry">
-      <div class="history-category-icon science">
-        <i class="bi bi-eyedropper"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Science</div>
-        <div class="history-meta">2 May 2026 &middot; 2:14</div>
-      </div>
-      <div class="history-score high">10 / 10</div>
-    </div>
-
-    <div class="history-entry">
-      <div class="history-category-icon programming">
-        <i class="bi bi-code-slash"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Programming</div>
-        <div class="history-meta">1 May 2026 &middot; 3:45</div>
-      </div>
-      <div class="history-score high">9 / 10</div>
-    </div>
-
-    <div class="history-entry">
-      <div class="history-category-icon math">
-        <i class="bi bi-calculator"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Math</div>
-        <div class="history-meta">30 Apr 2026 &middot; 5:02</div>
-      </div>
-      <div class="history-score mid">7 / 10</div>
-    </div>
-
-    <div class="history-entry">
-      <div class="history-category-icon science">
-        <i class="bi bi-eyedropper"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Science</div>
-        <div class="history-meta">29 Apr 2026 &middot; 4:31</div>
-      </div>
-      <div class="history-score mid">6 / 10</div>
-    </div>
-
-    <div class="history-entry">
-      <div class="history-category-icon programming">
-        <i class="bi bi-code-slash"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Programming</div>
-        <div class="history-meta">28 Apr 2026 &middot; 2:58</div>
-      </div>
-      <div class="history-score high">8 / 10</div>
-    </div>
-
-    <div class="history-entry">
-      <div class="history-category-icon math">
-        <i class="bi bi-calculator"></i>
-      </div>
-      <div class="history-info">
-        <div class="history-title">Math</div>
-        <div class="history-meta">27 Apr 2026 &middot; 6:17</div>
-      </div>
-      <div class="history-score low">4 / 10</div>
-    </div>
-  </div>
+  <div class="history-list" id="history-list"></div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CATEGORY_ICONS = {
+    science: 'bi-eyedropper',
+    programming: 'bi-code-slash',
+    math: 'bi-calculator',
+    general: 'bi-grid',
+};
+
+function categoryClass(category) {
+    const key = (category || '').toLowerCase();
+    if (key in CATEGORY_ICONS) return key;
+    return '';
+}
+
+function categoryIcon(category) {
+    return CATEGORY_ICONS[(category || '').toLowerCase()] || 'bi-patch-question';
+}
+
+function scoreClass(score, total) {
+    if (total === 0) return 'low';
+    const pct = score / total;
+    if (pct >= 0.8) return 'high';
+    if (pct >= 0.5) return 'mid';
+    return 'low';
+}
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function renderHistory(entries) {
+    const list = document.getElementById('history-list');
+    const empty = document.getElementById('history-empty');
+    const count = document.getElementById('history-count');
+
+    count.textContent = `${entries.length} quiz${entries.length === 1 ? '' : 'zes'} completed`;
+
+    if (entries.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    list.innerHTML = entries.map(entry => `
+        <div class="history-entry">
+            <div class="history-category-icon ${categoryClass(entry.category)}">
+                <i class="bi ${categoryIcon(entry.category)}"></i>
+            </div>
+            <div class="history-info">
+                <div class="history-title">${entry.category}</div>
+                <div class="history-meta">${formatDate(entry.completed_at)} &middot; ${formatTime(entry.time_taken)}</div>
+            </div>
+            <div class="history-score ${scoreClass(entry.score, entry.total)}">${entry.score} / ${entry.total}</div>
+        </div>
+    `).join('');
+}
+
+function loadHistory() {
+    fetch('/api/history')
+        .then(r => r.json())
+        .then(data => renderHistory(data.history || []))
+        .catch(() => {
+            document.getElementById('history-list').innerHTML =
+                '<div class="alert alert-danger">Error loading history.</div>';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
 {% endblock %}
