@@ -34,7 +34,7 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('main.login'))
 
 
 @main.route('/home')
