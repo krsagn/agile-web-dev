@@ -391,13 +391,10 @@ def profile():
 
     achievements = _achievement_cards_for(user)
 
-    recent_history = session.get('quiz_results')
-
     return render_template(
         'userProfile.html',
         profile=profile_data,
         achievements=achievements,
-        recent_history=recent_history,
     )
 
 
