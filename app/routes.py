@@ -414,6 +414,30 @@ def get_quiz_results():
     return jsonify({"quiz_results": quiz_results})
 
 
+@main.route('/api/history')
+@login_required
+def get_history():
+    results = (
+        QuizResult.query
+        .filter_by(user_id=current_user.id)
+        .order_by(QuizResult.completed_at.desc())
+        .all()
+    )
+
+    history = [
+        {
+            'category': result.category,
+            'score': result.score,
+            'total': result.total,
+            'time_taken': result.time_taken,
+            'completed_at': result.completed_at.isoformat(),
+        }
+        for result in results
+    ]
+
+    return jsonify({'history': history})
+
+  
 @main.route('/api/leaderboard')
 def get_leaderboard():
     today = datetime.now(timezone.utc).date()
