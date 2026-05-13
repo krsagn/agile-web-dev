@@ -317,12 +317,3 @@ def get_quiz_results():
         return jsonify({"quiz_results": None})
     return jsonify({"quiz_results": quiz_results})
 
-# use this to check if session management is functional
-@main.route("/debug/session")
-def debug_session():
-    return jsonify({
-        "is_authenticated": current_user.is_authenticated,
-        "user_id": current_user.get_id() if current_user.is_authenticated else None,
-        "username": current_user.username if current_user.is_authenticated else None,
-        "session_keys": list(session.keys()),
-    })
