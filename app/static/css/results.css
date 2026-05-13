@@ -175,9 +175,9 @@
 }
 
 .btn-retake {
-  background: #ffc107;
+  background: #ff8c66;
   border: none;
-  color: #212529;
+  color: white;
   padding: 12px 24px;
   border-radius: 25px;
   font-weight: 600;
@@ -189,14 +189,14 @@
 }
 
 .btn-retake:hover {
-  background: #e0a800;
-  color: #212529;
+  background: #e87550;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 140, 102, 0.3);
 }
 
 .btn-secondary-action {
-  background: #6c757d;
+  background: #2d2757;
   border: none;
   color: white;
   padding: 12px 24px;
@@ -210,9 +210,10 @@
 }
 
 .btn-secondary-action:hover {
-  background: #5a6268;
+  background: #1a1729;
   color: white;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 41, 72, 0.3);
 }
 
 /* Responsive Design */
