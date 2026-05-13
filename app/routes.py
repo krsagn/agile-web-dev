@@ -13,6 +13,7 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from sqlalchemy import func
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
@@ -26,7 +27,7 @@ from .db import (
     Quiz,
     QuizResult,
 )
-from .models import UserAchievement
+from .models import RegisteredUser, UserAchievement
 
 main = Blueprint("main", __name__)
 
@@ -412,3 +413,54 @@ def get_quiz_results():
         return jsonify({"quiz_results": None})
     return jsonify({"quiz_results": quiz_results})
 
+
+@main.route('/api/leaderboard')
+def get_leaderboard():
+    today = datetime.now(timezone.utc).date()
+    current_user_id = current_user.id if current_user.is_authenticated else None
+
+    # Today's scores — best score per user, tiebreak by fastest time
+    today_results = (
+        db.session.query(QuizResult, RegisteredUser)
+        .join(RegisteredUser, QuizResult.user_id == RegisteredUser.id)
+        .filter(func.date(QuizResult.completed_at) == today)
+        .order_by(QuizResult.score.desc(), QuizResult.time_taken.asc())
+        .all()
+    )
+
+    seen = set()
+    today_list = []
+    for result, user in today_results:
+        if user.id in seen:
+            continue
+        seen.add(user.id)
+        today_list.append(
+            {
+                'username': user.username,
+                'score': result.score,
+                'total': result.total,
+                'time_taken': result.time_taken,
+                'streak': user.streak,
+                'is_current_user': user.id == current_user_id,
+            }
+        )
+
+    # All-time XP, sorted by XP descending
+    quiz_counts = dict(
+        db.session.query(QuizResult.user_id, func.count(QuizResult.id))
+        .group_by(QuizResult.user_id)
+        .all()
+    )
+    alltime_users = RegisteredUser.query.order_by(RegisteredUser.xp.desc()).all()
+    alltime_list = [
+        {
+            'username': user.username,
+            'xp': user.xp,
+            'streak': user.streak,
+            'quiz_count': quiz_counts.get(user.id, 0),
+            'is_current_user': user.id == current_user_id,
+        }
+        for user in alltime_users
+    ]
+
+    return jsonify({'today': today_list, 'all_time': alltime_list})
