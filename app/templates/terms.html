@@ -58,6 +58,7 @@
       .terms-badge {
         display: inline-flex;
         align-items: center;
+        gap: 0.55rem;
         padding: 0.55rem 0.95rem;
         border-radius: 999px;
         background: rgba(245, 247, 255, 0.95);
@@ -66,6 +67,44 @@
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+      }
+
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 11px 11px 13px 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(145deg, #f6cf86, #ffefb6);
+        color: #5c3c16;
+        font-size: 0.95rem;
+        font-weight: 900;
+        letter-spacing: 0;
+        box-shadow: 0 8px 16px rgba(178, 119, 46, 0.18);
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .brand-mark::before,
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        top: -6px;
+        width: 10px;
+        height: 14px;
+        border-radius: 10px 10px 4px 4px;
+        background: #8b5e2b;
+      }
+
+      .brand-mark::before {
+        left: 6px;
+        transform: rotate(-14deg);
+      }
+
+      .brand-mark::after {
+        right: 6px;
+        transform: rotate(14deg);
       }
 
       .terms-title {
@@ -134,7 +173,10 @@
   <body>
     <main class="terms-shell">
       <section class="terms-card">
-        <span class="terms-badge">Quokka Terms</span>
+        <span class="terms-badge">
+          <span class="brand-mark" aria-hidden="true">Q</span>
+          <span>Quokka Terms</span>
+        </span>
         <h1 class="terms-title">Terms and Conditions</h1>
         <p class="terms-intro">
           By creating an account for Quokka, you agree to use the app
