@@ -15,6 +15,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
 from .db import (
     db,
     find_registered_user_by_id,
@@ -25,11 +26,111 @@ from .db import (
     Quiz,
     QuizResult,
 )
+from .models import UserAchievement
 
 main = Blueprint("main", __name__)
 
 # Requires GOOGLE_CLIENT_ID in .env (see Discord for setup instructions)
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+
+
+def _calculate_level(xp):
+    level = 1
+    for candidate_level, required_xp in sorted(XP_PER_LEVEL.items()):
+        if xp >= required_xp:
+            level = candidate_level
+    return level
+
+
+def _next_level_xp(level):
+    higher_levels = [
+        required_xp
+        for candidate_level, required_xp in sorted(XP_PER_LEVEL.items())
+        if candidate_level > level
+    ]
+    if higher_levels:
+        return higher_levels[0]
+    return XP_PER_LEVEL.get(level, 0)
+
+
+def _update_user_progress(user, correct_count):
+    now = datetime.now(timezone.utc)
+    today = now.date()
+
+    if user.last_active is None:
+        user.streak = 1
+    else:
+        last_active = user.last_active
+        if last_active.tzinfo is None:
+            last_active = last_active.replace(tzinfo=timezone.utc)
+
+        days_since_last_quiz = (today - last_active.date()).days
+        if days_since_last_quiz == 1:
+            user.streak += 1
+        elif days_since_last_quiz > 1:
+            user.streak = 1
+
+    user.last_active = now
+    user.xp += correct_count * 10
+    user.level = _calculate_level(user.xp)
+
+
+def _achievement_unlocked(key, user, result, correct_answers):
+    is_perfect = result.total > 0 and result.score == result.total
+    category = result.category.lower()
+
+    rules = {
+        "first_quiz": len(user.quiz_results) >= 1,
+        "perfect_score": is_perfect,
+        "speed_demon": result.time_taken <= 120,
+        "streak_7": user.streak >= 7,
+        "streak_30": user.streak >= 30,
+        "science_ace": category == "science" and is_perfect,
+        "code_master": category == "programming" and is_perfect,
+        "math_genius": category == "math" and is_perfect,
+        "hundred_correct": correct_answers >= 100,
+    }
+
+    return rules.get(key, False)
+
+
+def _unlock_achievements(user, result):
+    earned_keys = {achievement.achievement_key for achievement in user.achievements}
+    correct_answers = sum(quiz_result.score for quiz_result in user.quiz_results)
+    newly_unlocked = []
+
+    for key, definition in ACHIEVEMENTS.items():
+        if key in earned_keys:
+            continue
+        if not _achievement_unlocked(key, user, result, correct_answers):
+            continue
+
+        user.achievements.append(
+            UserAchievement(
+                achievement_key=key,
+                earned_at=datetime.now(timezone.utc),
+            )
+        )
+        newly_unlocked.append({"key": key, **definition})
+
+    return newly_unlocked
+
+
+def _achievement_cards_for(user):
+    earned = {
+        achievement.achievement_key: achievement.earned_at
+        for achievement in user.achievements
+    }
+
+    return [
+        {
+            "key": key,
+            **definition,
+            "earned": key in earned,
+            "earned_at": earned.get(key),
+        }
+        for key, definition in ACHIEVEMENTS.items()
+    ]
 
 
 @main.route('/')
@@ -223,6 +324,7 @@ def submit_quiz():
         )
 
     # Persist to DB if user is logged in
+    newly_unlocked = []
     if current_user.is_authenticated:
         result = QuizResult(
             user_id=current_user.id,
@@ -233,6 +335,9 @@ def submit_quiz():
             completed_at=datetime.now(timezone.utc),
         )
         db.session.add(result)
+        _update_user_progress(current_user, correct_count)
+        db.session.flush()
+        newly_unlocked = _unlock_achievements(current_user, result)
         db.session.commit()
 
     # Store results in session for results page
@@ -243,6 +348,7 @@ def submit_quiz():
         "time_taken": time_taken,
         "category": category,
         "details": results,
+        "new_achievements": newly_unlocked,
     }
 
     return jsonify({'success': True, 'score': correct_count, 'total': len(quizzes)})
@@ -258,7 +364,9 @@ def profile():
         flash('User account not found. Please log in again.', 'warning')
         return redirect(url_for('main.login'))
 
-    next_level_xp = 1000
+    next_level_xp = _next_level_xp(user.level)
+    current_level_xp = XP_PER_LEVEL.get(user.level, 0)
+    level_span = max(next_level_xp - current_level_xp, 1)
     best_score = max((r.score for r in user.quiz_results), default=0)
     correct_answers = sum(r.score for r in user.quiz_results)
 
@@ -267,33 +375,20 @@ def profile():
         'username': user.username,
         'email': user.email,
         'level': user.level,
-        'title': 'New Quokka',  # TODO: derive title from level
+        'title': LEVEL_TITLES.get(user.level, 'Quokka Legend'),
         'xp': user.xp,
-        'next_level_xp': next_level_xp,  # TODO: compute based on levelling curve
-        'xp_percent': min(round(user.xp / next_level_xp * 100), 100),
+        'next_level_xp': next_level_xp,
+        'xp_percent': max(
+            min(round((user.xp - current_level_xp) / level_span * 100), 100),
+            0,
+        ),
         'streak': user.streak,
         'quiz_wins': len(user.quiz_results),
         'best_score': best_score,
         'correct_answers': correct_answers,
     }
 
-    achievements = [
-        {
-            'icon': 'bi-lightning-charge',
-            'name': 'Fast Thinker',
-            'description': 'Finished a quiz quickly',
-        },
-        {
-            'icon': 'bi-fire',
-            'name': 'Streak Master',
-            'description': 'Reached a 10 day streak',
-        },
-        {
-            'icon': 'bi-award',
-            'name': 'Top Scorer',
-            'description': 'Scored above 1000 points',
-        },
-    ]
+    achievements = _achievement_cards_for(user)
 
     recent_history = session.get('quiz_results')
 

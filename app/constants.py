@@ -26,24 +26,58 @@ XP_PER_LEVEL = {
 }
 
 ACHIEVEMENTS = {
-    "first_quiz": {"name": "First Steps", "description": "Complete your first quiz"},
-    "perfect_score": {"name": "Perfect Score", "description": "Get 10/10 on any quiz"},
-    "speed_demon": {
-        "name": "Speed Demon",
-        "description": "Finish a quiz in under 2 minutes",
+    "first_quiz": {
+        "name": "First Hop",
+        "description": "Complete your first quiz",
+        "quokka": "Scout Quokka",
+        "badge_class": "quokka-scout",
     },
-    "streak_7": {"name": "On Fire", "description": "Reach a 7-day streak"},
-    "streak_30": {"name": "Dedicated", "description": "Reach a 30-day streak"},
+    "perfect_score": {
+        "name": "Perfect Pouch",
+        "description": "Get every question right on any quiz",
+        "quokka": "Gold Quokka",
+        "badge_class": "quokka-gold",
+    },
+    "speed_demon": {
+        "name": "Quick Paws",
+        "description": "Finish a quiz in under 2 minutes",
+        "quokka": "Dash Quokka",
+        "badge_class": "quokka-dash",
+    },
+    "streak_7": {
+        "name": "Week Wanderer",
+        "description": "Reach a 7-day streak",
+        "quokka": "Ember Quokka",
+        "badge_class": "quokka-ember",
+    },
+    "streak_30": {
+        "name": "Island Regular",
+        "description": "Reach a 30-day streak",
+        "quokka": "Elder Quokka",
+        "badge_class": "quokka-elder",
+    },
     "science_ace": {
-        "name": "Science Ace",
+        "name": "Lab Leaves",
         "description": "Get a perfect score in Science",
+        "quokka": "Lab Quokka",
+        "badge_class": "quokka-lab",
     },
     "code_master": {
-        "name": "Code Master",
+        "name": "Code Burrow",
         "description": "Get a perfect score in Programming",
+        "quokka": "Code Quokka",
+        "badge_class": "quokka-code",
     },
     "math_genius": {
-        "name": "Math Genius",
+        "name": "Number Nibbler",
         "description": "Get a perfect score in Math",
+        "quokka": "Math Quokka",
+        "badge_class": "quokka-math",
+    },
+    "hundred_correct": {
+        "name": "Hundred Seeds",
+        "description": "Answer 100 questions correctly",
+        "quokka": "Scholar Quokka",
+        "badge_class": "quokka-scholar",
     },
 }

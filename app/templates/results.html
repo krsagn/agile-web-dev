@@ -1,13 +1,10 @@
-{% extends 'layout.html' %}
-{% set active_page = 'results' %}
-
-{% block title %}Results — Quokka{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
-{% endblock %}
-
-{% block content %}
+{% extends 'layout.html' %} {% set active_page = 'results' %} {% block title
+%}Results — Quokka{% endblock %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/results.css') }}"
+/>
+{% endblock %} {% block content %}
 <div class="container py-4">
   <h1 class="page-title">Your Results</h1>
 
@@ -18,6 +15,16 @@
       <span id="score-display">0</span><span class="score-label">/10</span>
     </div>
     <div class="accuracy-badge" id="accuracy-display">0% Accuracy</div>
+  </div>
+
+  <!-- New Achievements -->
+  <div class="card mb-4 d-none" id="new-achievements-card">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">
+        <i class="bi bi-award text-warning me-2"></i>New Quokka Badges
+      </h5>
+    </div>
+    <div class="list-group list-group-flush" id="new-achievements-list"></div>
   </div>
 
   <!-- Stats Row -->
@@ -36,9 +43,7 @@
 
   <!-- Answer Review -->
   <div class="section-card">
-    <h2 class="section-title">
-      <i class="bi bi-list-check"></i>Answer Review
-    </h2>
+    <h2 class="section-title"><i class="bi bi-list-check"></i>Answer Review</h2>
     <div id="answers-container">
       <!-- Dynamically populated -->
     </div>
@@ -58,21 +63,16 @@
   </div>
 </div>
 
-{% endblock %}
-
-
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script>
-  // Display quiz results from session
   function displayResults() {
-    // Fetch results data from server
-    fetch('/api/quiz-results')
-      .then(response => response.json())
-      .then(data => {
+    fetch("/api/quiz-results")
+      .then((response) => response.json())
+      .then((data) => {
         if (!data || !data.quiz_results) {
-          document.querySelector('.main-content').innerHTML = '<div class="alert alert-warning mt-5">No quiz results found. Please take a quiz first.</div>';
+          document.querySelector(".main-content").innerHTML =
+            '<div class="alert alert-warning mt-5">No quiz results found. Please take a quiz first.</div>';
           return;
         }
 
@@ -81,62 +81,97 @@
         const total = results.total;
         const percentage = results.percentage;
         const timeTaken = results.time_taken;
-        const category = results.category || 'General Knowledge';
+        const category = results.category || "General Knowledge";
         const details = results.details;
+        const newAchievements = results.new_achievements || [];
 
         // Update category display
-        document.getElementById('category-display').textContent = `${category} Quiz`;
+        document.getElementById("category-display").textContent =
+          `${category} Quiz`;
 
         // Update score display
-        document.getElementById('score-display').textContent = score;
-        document.getElementById('accuracy-display').textContent = `${Math.round(percentage)}% Accuracy`;
-        
+        document.getElementById("score-display").textContent = score;
+        document.getElementById("accuracy-display").textContent =
+          `${Math.round(percentage)}% Accuracy`;
+
         // Update time display
         const mins = Math.floor(timeTaken / 60);
         const secs = timeTaken % 60;
-        document.getElementById('time-display').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-        
+        document.getElementById("time-display").textContent =
+          `${mins}:${secs.toString().padStart(2, "0")}`;
+
         // Update correct count
-        document.getElementById('correct-count').textContent = score;
+        document.getElementById("correct-count").textContent = score;
+
+        // Show newly unlocked achievements
+        const achievementsCard = document.getElementById(
+          "new-achievements-card",
+        );
+        const achievementsList = document.getElementById(
+          "new-achievements-list",
+        );
+        achievementsList.innerHTML = "";
+        if (newAchievements.length > 0) {
+          achievementsCard.classList.remove("d-none");
+          newAchievements.forEach((achievement) => {
+            const item = document.createElement("div");
+            item.className =
+              "list-group-item d-flex align-items-center gap-3 p-3";
+            item.innerHTML = `
+              <div class="brand-mark flex-shrink-0" aria-hidden="true">Q</div>
+              <div>
+                <div class="fw-bold">${achievement.name}</div>
+                <small class="text-muted">${achievement.quokka}: ${achievement.description}</small>
+              </div>
+            `;
+            achievementsList.appendChild(item);
+          });
+        } else {
+          achievementsCard.classList.add("d-none");
+        }
 
         // Populate answer review
-        const container = document.getElementById('answers-container');
-        container.innerHTML = '';
-        
+        const container = document.getElementById("answers-container");
+        container.innerHTML = "";
+
         details.forEach((detail, idx) => {
           const isCorrect = detail.is_correct;
-          const badgeClass = isCorrect ? 'bg-success' : 'bg-danger';
-          const icon = isCorrect ? 'bi-check-circle' : 'bi-x-circle';
-          const statusText = isCorrect ? 'Correct' : 'Incorrect';
-          
-          const answerItem = document.createElement('div');
-          answerItem.className = 'answer-item';
+          const icon = isCorrect ? "bi-check-circle" : "bi-x-circle";
+          const statusText = isCorrect ? "Correct" : "Incorrect";
+
+          const answerItem = document.createElement("div");
+          answerItem.className = "answer-item";
           answerItem.innerHTML = `
             <div class="answer-header">
               <div class="question-text">Q${idx + 1}: ${detail.question}</div>
-              <span class="answer-status ${isCorrect ? 'status-correct' : 'status-incorrect'}">
+              <span class="answer-status ${isCorrect ? "status-correct" : "status-incorrect"}">
                 <i class="bi ${icon} me-1"></i>${statusText}
               </span>
             </div>
             <div class="answer-details">
               <div class="answer-text">
-                <strong>Your answer:</strong> ${detail.user_answer ? detail.user_answer : 'Not answered'}
-                ${detail.user_answer ? `- ${detail.options[detail.user_answer]}` : ''}
+                <strong>Your answer:</strong> ${detail.user_answer ? detail.user_answer : "Not answered"}
+                ${detail.user_answer ? `- ${detail.options[detail.user_answer]}` : ""}
               </div>
-              ${!isCorrect ? `<div class="correct-answer">
+              ${
+                !isCorrect
+                  ? `<div class="correct-answer">
                 <strong>Correct answer:</strong> ${detail.correct_answer} - ${detail.options[detail.correct_answer]}
-              </div>` : ''}
+              </div>`
+                  : ""
+              }
             </div>
           `;
           container.appendChild(answerItem);
         });
       })
-      .catch(error => {
-        console.error('Error loading results:', error);
-        document.querySelector('.main-content').innerHTML = '<div class="alert alert-danger mt-5">Error loading quiz results. Please try again.</div>';
+      .catch((error) => {
+        console.error("Error loading results:", error);
+        document.querySelector(".main-content").innerHTML =
+          '<div class="alert alert-danger mt-5">Error loading quiz results. Please try again.</div>';
       });
   }
 
-  document.addEventListener('DOMContentLoaded', displayResults);
+  document.addEventListener("DOMContentLoaded", displayResults);
 </script>
 {% endblock %}

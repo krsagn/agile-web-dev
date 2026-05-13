@@ -65,10 +65,30 @@
 
   <div class="achievement-list">
     {% for achievement in achievements %}
-    <div class="achievement-item">
-      <i class="bi {{ achievement.icon }}"></i>
+    <div class="achievement-item {% if achievement.earned %}earned{% else %}locked{% endif %}">
+      <div
+        class="quokka-badge {{ achievement.badge_class }}"
+        aria-label="{{ achievement.quokka }}"
+        title="{{ achievement.quokka }}"
+      >
+        <span class="quokka-ear left"></span>
+        <span class="quokka-ear right"></span>
+        <span class="quokka-face">
+          <span class="quokka-eye left"></span>
+          <span class="quokka-eye right"></span>
+          <span class="quokka-nose"></span>
+        </span>
+      </div>
       <h4>{{ achievement.name }}</h4>
+      <strong>{{ achievement.quokka }}</strong>
       <p>{{ achievement.description }}</p>
+      <span class="achievement-status">
+        {% if achievement.earned %}
+        Earned
+        {% else %}
+        Locked
+        {% endif %}
+      </span>
     </div>
     {% else %}
     <p>No achievements yet. Complete quizzes to unlock achievements.</p>
