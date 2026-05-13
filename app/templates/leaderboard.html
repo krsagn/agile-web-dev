@@ -18,31 +18,7 @@
 
 <!-- TODAY VIEW -->
 <div id="view-today">
-
-    <!-- Podium -->
-    <div class="podium-row">
-        <div class="podium-card podium-silver">
-            <div class="podium-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank silver-rank">2</div>
-            <div class="podium-name">Alex T.</div>
-            <div class="podium-score">9/10</div>
-        </div>
-        <div class="podium-card podium-gold">
-            <div class="podium-crown"><i class="bi bi-crown-fill"></i></div>
-            <div class="podium-avatar large-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank gold-rank">1</div>
-            <div class="podium-name">Samuel C.</div>
-            <div class="podium-score">10/10</div>
-        </div>
-        <div class="podium-card podium-bronze">
-            <div class="podium-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank bronze-rank">3</div>
-            <div class="podium-name">Maria L.</div>
-            <div class="podium-score">8/10</div>
-        </div>
-    </div>
-
-    <!-- Today Rankings -->
+    <div class="podium-row" id="podium-today"></div>
     <div class="section-card">
         <h2 class="section-title">Today's Scores</h2>
         <div class="leaderboard-table">
@@ -53,88 +29,14 @@
                 <span class="lb-streak">Streak</span>
                 <span class="lb-quizzes">Time</span>
             </div>
-            <div class="lb-row lb-gold lb-you">
-                <span class="lb-rank"><i class="bi bi-trophy-fill text-warning"></i> 1</span>
-                <span class="lb-user">
-                    <div class="lb-avatar lb-avatar-you"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Samuel C. <span class="you-badge">You</span></div><div class="lb-handle">@samuelclw</div></div>
-                </span>
-                <span class="lb-score fw-bold">10 / 10</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>67</span>
-                <span class="lb-quizzes">1:42</span>
-            </div>
-            <div class="lb-row lb-silver">
-                <span class="lb-rank"><i class="bi bi-trophy-fill lb-silver-icon"></i> 2</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Alex T.</div><div class="lb-handle">@alext99</div></div>
-                </span>
-                <span class="lb-score fw-bold">9 / 10</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>34</span>
-                <span class="lb-quizzes">2:05</span>
-            </div>
-            <div class="lb-row lb-bronze">
-                <span class="lb-rank"><i class="bi bi-trophy-fill lb-bronze-icon"></i> 3</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Maria L.</div><div class="lb-handle">@mariaL</div></div>
-                </span>
-                <span class="lb-score fw-bold">8 / 10</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>21</span>
-                <span class="lb-quizzes">2:31</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">4</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Jordan K.</div><div class="lb-handle">@jordank</div></div>
-                </span>
-                <span class="lb-score fw-bold">8 / 10</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>15</span>
-                <span class="lb-quizzes">3:10</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">5</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Priya N.</div><div class="lb-handle">@priyan</div></div>
-                </span>
-                <span class="lb-score fw-bold">7 / 10</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>9</span>
-                <span class="lb-quizzes">4:22</span>
-            </div>
+            <div id="table-today"></div>
         </div>
     </div>
-
 </div>
 
 <!-- ALL-TIME VIEW -->
 <div id="view-alltime" style="display:none;">
-
-    <!-- Podium -->
-    <div class="podium-row">
-        <div class="podium-card podium-silver">
-            <div class="podium-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank silver-rank">2</div>
-            <div class="podium-name">Alex T.</div>
-            <div class="podium-score">9,200 XP</div>
-        </div>
-        <div class="podium-card podium-gold">
-            <div class="podium-crown"><i class="bi bi-crown-fill"></i></div>
-            <div class="podium-avatar large-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank gold-rank">1</div>
-            <div class="podium-name">Samuel C.</div>
-            <div class="podium-score">10,500 XP</div>
-        </div>
-        <div class="podium-card podium-bronze">
-            <div class="podium-avatar"><i class="bi bi-person-fill"></i></div>
-            <div class="podium-rank bronze-rank">3</div>
-            <div class="podium-name">Maria L.</div>
-            <div class="podium-score">8,750 XP</div>
-        </div>
-    </div>
-
-    <!-- All-time Rankings -->
+    <div class="podium-row" id="podium-alltime"></div>
     <div class="section-card">
         <h2 class="section-title">All-time XP</h2>
         <div class="leaderboard-table">
@@ -145,79 +47,9 @@
                 <span class="lb-streak">Streak</span>
                 <span class="lb-quizzes">Quizzes</span>
             </div>
-            <div class="lb-row lb-gold lb-you">
-                <span class="lb-rank"><i class="bi bi-trophy-fill text-warning"></i> 1</span>
-                <span class="lb-user">
-                    <div class="lb-avatar lb-avatar-you"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Samuel C. <span class="you-badge">You</span></div><div class="lb-handle">@samuelclw</div></div>
-                </span>
-                <span class="lb-score fw-bold">10,500</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>67</span>
-                <span class="lb-quizzes">142</span>
-            </div>
-            <div class="lb-row lb-silver">
-                <span class="lb-rank"><i class="bi bi-trophy-fill lb-silver-icon"></i> 2</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Alex T.</div><div class="lb-handle">@alext99</div></div>
-                </span>
-                <span class="lb-score fw-bold">9,200</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>34</span>
-                <span class="lb-quizzes">98</span>
-            </div>
-            <div class="lb-row lb-bronze">
-                <span class="lb-rank"><i class="bi bi-trophy-fill lb-bronze-icon"></i> 3</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Maria L.</div><div class="lb-handle">@mariaL</div></div>
-                </span>
-                <span class="lb-score fw-bold">8,750</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>21</span>
-                <span class="lb-quizzes">87</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">4</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Jordan K.</div><div class="lb-handle">@jordank</div></div>
-                </span>
-                <span class="lb-score fw-bold">7,400</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>15</span>
-                <span class="lb-quizzes">73</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">5</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Priya N.</div><div class="lb-handle">@priyan</div></div>
-                </span>
-                <span class="lb-score fw-bold">6,900</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>9</span>
-                <span class="lb-quizzes">61</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">6</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Chris M.</div><div class="lb-handle">@chrism</div></div>
-                </span>
-                <span class="lb-score fw-bold">5,300</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>5</span>
-                <span class="lb-quizzes">48</span>
-            </div>
-            <div class="lb-row">
-                <span class="lb-rank">7</span>
-                <span class="lb-user">
-                    <div class="lb-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div><div class="lb-name">Taylor R.</div><div class="lb-handle">@taylorr</div></div>
-                </span>
-                <span class="lb-score fw-bold">4,150</span>
-                <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>3</span>
-                <span class="lb-quizzes">39</span>
-            </div>
+            <div id="table-alltime"></div>
         </div>
     </div>
-
 </div>
 {% endblock %}
 
@@ -229,5 +61,110 @@ function switchView(view) {
     document.getElementById('btn-today').classList.toggle('active',   view === 'today');
     document.getElementById('btn-alltime').classList.toggle('active', view === 'alltime');
 }
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function rankClass(rank) {
+    if (rank === 1) return 'lb-gold';
+    if (rank === 2) return 'lb-silver';
+    if (rank === 3) return 'lb-bronze';
+    return '';
+}
+
+function rankIcon(rank) {
+    if (rank === 1) return '<i class="bi bi-trophy-fill text-warning"></i> 1';
+    if (rank === 2) return '<i class="bi bi-trophy-fill lb-silver-icon"></i> 2';
+    if (rank === 3) return '<i class="bi bi-trophy-fill lb-bronze-icon"></i> 3';
+    return rank;
+}
+
+function renderPodium(containerId, entries, scoreLabel) {
+    const container = document.getElementById(containerId);
+    if (entries.length < 3) {
+        container.innerHTML = '';
+        return;
+    }
+    const order = [entries[1], entries[0], entries[2]]; // silver, gold, bronze
+    const styles = ['podium-silver', 'podium-gold', 'podium-bronze'];
+    const ranks = [2, 1, 3];
+
+    container.innerHTML = order.map((entry, i) => `
+        <div class="podium-card ${styles[i]}">
+            ${ranks[i] === 1 ? '<div class="podium-crown"><i class="bi bi-crown-fill"></i></div>' : ''}
+            <div class="podium-avatar ${ranks[i] === 1 ? 'large-avatar' : ''}"><i class="bi bi-person-fill"></i></div>
+            <div class="podium-rank ${styles[i].replace('podium-', '')}-rank">${ranks[i]}</div>
+            <div class="podium-name">@${entry.username}</div>
+            <div class="podium-score">${scoreLabel(entry)}</div>
+        </div>
+    `).join('');
+}
+
+function renderTodayTable(entries) {
+    const container = document.getElementById('table-today');
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="lb-row"><span style="padding:1rem;color:#666;">No quizzes completed today yet.</span></div>';
+        return;
+    }
+    container.innerHTML = entries.map((entry, i) => {
+        const rank = i + 1;
+        const youBadge = entry.is_current_user ? ' <span class="you-badge">You</span>' : '';
+        const youClass = entry.is_current_user ? ' lb-you' : '';
+        return `
+        <div class="lb-row ${rankClass(rank)}${youClass}">
+            <span class="lb-rank">${rankIcon(rank)}</span>
+            <span class="lb-user">
+                <div class="lb-avatar ${entry.is_current_user ? 'lb-avatar-you' : ''}"><i class="bi bi-person-fill"></i></div>
+                <div><div class="lb-name">@${entry.username}${youBadge}</div></div>
+            </span>
+            <span class="lb-score fw-bold">${entry.score} / ${entry.total}</span>
+            <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>${entry.streak}</span>
+            <span class="lb-quizzes">${formatTime(entry.time_taken)}</span>
+        </div>`;
+    }).join('');
+}
+
+function renderAlltimeTable(entries) {
+    const container = document.getElementById('table-alltime');
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="lb-row"><span style="padding:1rem;color:#666;">No users yet.</span></div>';
+        return;
+    }
+    container.innerHTML = entries.map((entry, i) => {
+        const rank = i + 1;
+        const youBadge = entry.is_current_user ? ' <span class="you-badge">You</span>' : '';
+        const youClass = entry.is_current_user ? ' lb-you' : '';
+        return `
+        <div class="lb-row ${rankClass(rank)}${youClass}">
+            <span class="lb-rank">${rankIcon(rank)}</span>
+            <span class="lb-user">
+                <div class="lb-avatar ${entry.is_current_user ? 'lb-avatar-you' : ''}"><i class="bi bi-person-fill"></i></div>
+                <div><div class="lb-name">@${entry.username}${youBadge}</div></div>
+            </span>
+            <span class="lb-score fw-bold">${entry.xp.toLocaleString()}</span>
+            <span class="lb-streak"><i class="bi bi-fire text-danger me-1"></i>${entry.streak}</span>
+            <span class="lb-quizzes">${entry.quiz_count}</span>
+        </div>`;
+    }).join('');
+}
+
+function loadLeaderboard() {
+    fetch('/api/leaderboard')
+        .then(r => r.json())
+        .then(data => {
+            renderPodium('podium-today', data.today, e => `${e.score}/${e.total}`);
+            renderPodium('podium-alltime', data.all_time, e => `${e.xp.toLocaleString()} XP`);
+            renderTodayTable(data.today);
+            renderAlltimeTable(data.all_time);
+        })
+        .catch(() => {
+            document.getElementById('view-today').innerHTML = '<div class="alert alert-danger">Error loading leaderboard.</div>';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', loadLeaderboard);
 </script>
 {% endblock %}
