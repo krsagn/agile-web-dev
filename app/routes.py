@@ -10,6 +10,7 @@ from flask import (
     flash,
     jsonify,
 )
+from flask_login import current_user, login_required, login_user, logout_user
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -33,7 +34,7 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('main.login'))
 
 
 @main.route('/home')
@@ -43,6 +44,9 @@ def test():
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.profile'))
+
     if request.method == 'POST':
         identifier = request.form.get('identifier', '').strip()
         password = request.form.get('password', '')
@@ -56,15 +60,22 @@ def login():
             flash('Invalid username/email or password.', 'danger')
             return render_template('login.html'), 401
 
-        session['user'] = {
-            'id': user['id'],
-            'username': user['username'],
-            'email': user['email'],
-        }
+        login_user(user, remember=bool(request.form.get("remember")))
         flash('Logged in successfully.', 'success')
+        next_page = request.form.get('next') or request.args.get('next')
+        if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+            return redirect(next_page)
         return redirect(url_for('main.profile'))
 
     return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
+
+
+@main.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('main.login'))
 
 
 @main.route('/register', methods=['GET', 'POST'])
@@ -138,6 +149,7 @@ def leaderboard():
 
 
 @main.route('/history')
+@login_required
 def history():
     return render_template('history.html')
 
@@ -211,10 +223,9 @@ def submit_quiz():
         )
 
     # Persist to DB if user is logged in
-    user = session.get("user")
-    if user:
+    if current_user.is_authenticated:
         result = QuizResult(
-            user_id=user["id"],
+            user_id=current_user.id,
             category=category or "General",
             score=correct_count,
             total=len(quizzes),
@@ -238,17 +249,12 @@ def submit_quiz():
 
 
 @main.route('/profile')
+@login_required
 def profile():
-    session_user = session.get('user')
-
-    if not session_user:
-        flash('Please log in first.', 'warning')
-        return redirect(url_for('main.login'))
-
-    user = find_registered_user_by_id(session_user['id'])
+    user = find_registered_user_by_id(current_user.id)
 
     if user is None:
-        session.clear()
+        logout_user()
         flash('User account not found. Please log in again.', 'warning')
         return redirect(url_for('main.login'))
 
@@ -310,3 +316,4 @@ def get_quiz_results():
     if not quiz_results:
         return jsonify({"quiz_results": None})
     return jsonify({"quiz_results": quiz_results})
+
