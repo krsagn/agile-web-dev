@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% set active_page = 'users' %}
+
+{% block title %}Find Users - Quokka{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/userSearch.css') }}"
+/>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="user-search-header">
+    <h1 class="page-title">Find Users</h1>
+    <p class="page-subtitle">
+      Search registered users by username or name.
+    </p>
+  </div>
+
+  <div class="user-search-card">
+    <div class="search-input-wrap">
+      <i class="bi bi-search"></i>
+
+      <input
+        type="text"
+        id="user-search-input"
+        class="form-control"
+        placeholder="Search users..."
+        autocomplete="off"
+      />
+    </div>
+
+    <div id="user-search-message" class="mt-3"></div>
+
+    <div id="user-search-results" class="user-results mt-4"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/userSearch.js') }}"></script>
+{% endblock %}

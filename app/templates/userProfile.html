@@ -96,40 +96,6 @@
   </div>
 </section>
 
-<section class="section-card">
-  <h2 class="section-title">Recent Quiz History</h2>
-
-  {% if recent_history %}
-  <div class="history-row">
-    <div>
-      <div class="history-title">Latest Quiz</div>
-      <div class="history-date">Current session</div>
-    </div>
-    <div class="history-score">
-      {{ recent_history.score }} / {{ recent_history.total }}
-    </div>
-  </div>
-
-  <div class="history-row">
-    <div>
-      <div class="history-title">Accuracy</div>
-      <div class="history-date">Latest result</div>
-    </div>
-    <div class="history-score">{{ recent_history.percentage | round(0) }}%</div>
-  </div>
-
-  <div class="history-row">
-    <div>
-      <div class="history-title">Time Taken</div>
-      <div class="history-date">Latest result</div>
-    </div>
-    <div class="history-score">{{ recent_history.time_taken }} seconds</div>
-  </div>
-  {% else %}
-  <p>No quiz history yet. Complete a quiz to see your results here.</p>
-  {% endif %}
-</section>
-
 <script>
   const xpProgressBar = document.getElementById("xpProgressBar");
   if (xpProgressBar) {

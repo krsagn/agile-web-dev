@@ -1,12 +1,35 @@
-{% extends 'layout.html' %} {% set active_page = 'quiz' %} {% block title %}Quiz
-— Quokka{% endblock %} {% block extra_css %}
+{% extends 'layout.html' %}
+{% set active_page = 'quiz' %}
+{% set has_completed_today = completed_today | default(false) %}
+
+{% block title %}Quiz - Quokka{% endblock %}
+
+{% block extra_css %}
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/quiz.css') }}"
 />
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="container py-4">
-  <!-- Category Selection -->
+
+  <div id="quiz-page-message">
+    {% if has_completed_today %}
+    <div class="alert alert-warning text-center mt-4" role="alert">
+      {{ quiz_message | default("You have already completed your quiz for today. Come back tomorrow for a new quiz.") }}
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="{{ url_for('main.leaderboard') }}" class="btn btn-primary">
+        View Leaderboard
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if not has_completed_today %}
+
   <div id="category-selection">
     <h1 class="page-title">Choose Your Quiz Category</h1>
 
@@ -15,24 +38,27 @@
         <button class="category-btn" data-category="Science">
           <i class="bi bi-flask"></i> Science Quiz
         </button>
+
         <button class="category-btn" data-category="Programming">
           <i class="bi bi-code-slash"></i> Programming Quiz
         </button>
+
         <button class="category-btn" data-category="Math">
           <i class="bi bi-calculator"></i> Math Quiz
         </button>
       </div>
+
       <button class="start-btn" id="confirm-category-btn" disabled>
         Start Quiz <i class="bi bi-play-fill"></i>
       </button>
     </div>
   </div>
 
-  <!-- Quiz Content -->
   <div id="quiz-content" class="d-none">
-    <!-- Quiz Header -->
+
     <div class="quiz-header">
       <div class="quiz-category" id="q-category">Category</div>
+
       <div class="quiz-question" id="q-text">
         Question text will appear here
       </div>
@@ -40,273 +66,358 @@
       <div class="quiz-progress">
         <div class="progress-bar" id="quiz-progress" style="width: 0%"></div>
       </div>
+
       <div class="quiz-counter" id="question-counter">1/10</div>
     </div>
 
-    <!-- Options -->
     <div class="options-grid">
       <div class="option-card btn-light" data-option="A">
         <span class="option-letter">A</span>
         <span class="option-text">Option A</span>
       </div>
+
       <div class="option-card btn-light" data-option="B">
         <span class="option-letter">B</span>
         <span class="option-text">Option B</span>
       </div>
+
       <div class="option-card btn-light" data-option="C">
         <span class="option-letter">C</span>
         <span class="option-text">Option C</span>
       </div>
+
       <div class="option-card btn-light" data-option="D">
         <span class="option-letter">D</span>
         <span class="option-text">Option D</span>
       </div>
     </div>
 
-    <!-- Navigation -->
     <div class="quiz-navigation">
       <button class="nav-btn btn-prev" id="prev-btn">
         <i class="bi bi-arrow-left"></i> Previous
       </button>
+
       <button class="nav-btn btn-next" id="next-btn">
         Next <i class="bi bi-arrow-right"></i>
       </button>
     </div>
 
-    <!-- Quiz Footer -->
     <div class="quiz-footer">
       <div class="timer-display" id="time-elapsed">Time: 20:00</div>
       <div class="score-preview" id="score-preview">Answered: 0/10</div>
     </div>
   </div>
+
+  {% endif %}
+
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<script id="completed-today-data" type="application/json">
+  {{ has_completed_today | default(false) | tojson }}
+</script>
+
 <script>
-  // Quiz variables
-  let selectedCategory = null;
-  let quizData = [];
-  let currentQuestion = 0;
-  let userAnswers = {};
-  let quizTimeLimit = 20 * 60; // 20 minutes in seconds
-  let elapsedTime = 0;
-  let timerInterval = null;
-  let quizFinished = false;
+  document.addEventListener("DOMContentLoaded", function () {
+    const completedToday = JSON.parse(
+      document.getElementById("completed-today-data").textContent
+    );
 
-  async function fetchQuizzes(category = null) {
-    try {
-      const url = category
-        ? `/api/quizzes?category=${encodeURIComponent(category)}`
-        : "/api/quizzes";
-      const response = await fetch(url);
-      const data = await response.json();
-      quizData = data;
+    if (completedToday) {
+      return;
+    }
 
+    let selectedCategory = null;
+    let quizData = [];
+    let currentQuestion = 0;
+    let userAnswers = {};
+    let quizTimeLimit = 20 * 60;
+    let elapsedTime = 0;
+    let timerInterval = null;
+    let quizFinished = false;
+
+    const pageMessage = document.getElementById("quiz-page-message");
+    const categorySelection = document.getElementById("category-selection");
+    const quizContent = document.getElementById("quiz-content");
+    const confirmCategoryBtn = document.getElementById("confirm-category-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    function showPageMessage(message, type = "warning") {
+      pageMessage.innerHTML = `
+        <div class="alert alert-${type} text-center mt-4" role="alert">
+          ${message}
+        </div>
+      `;
+    }
+
+    function clearPageMessage() {
+      pageMessage.innerHTML = "";
+    }
+
+    function hideQuizInterface() {
+      categorySelection.classList.add("d-none");
+      quizContent.classList.add("d-none");
+    }
+
+    async function fetchQuizzes(category = null) {
+      try {
+        clearPageMessage();
+
+        const url = category
+          ? `/api/quizzes?category=${encodeURIComponent(category)}`
+          : "/api/quizzes";
+
+        const response = await fetch(url);
+
+        const data = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok) {
+          showPageMessage(
+            data.message || "You have already completed your quiz for today. Come back tomorrow for a new quiz.",
+            "warning"
+          );
+          hideQuizInterface();
+          return;
+        }
+
+        quizData = Array.isArray(data) ? data : [];
+
+        if (quizData.length === 0) {
+          showPageMessage(
+            "No quizzes available for this category.",
+            "warning"
+          );
+          return;
+        }
+
+        categorySelection.classList.add("d-none");
+        quizContent.classList.remove("d-none");
+
+        loadQuestion(0);
+        startTimer();
+
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+
+        showPageMessage(
+          "Error loading quizzes. Please try again later.",
+          "danger"
+        );
+      }
+    }
+
+    function loadQuestion(index) {
       if (quizData.length === 0) {
-        document.querySelector(".main-content").innerHTML =
-          '<div class="alert alert-warning mt-5">No quizzes available for this category.</div>';
         return;
       }
 
-      // Hide category selection and show quiz
-      document.getElementById("category-selection").classList.add("d-none");
-      document.getElementById("quiz-content").classList.remove("d-none");
+      const q = quizData[index];
 
-      // Load the first question
-      loadQuestion(0);
-      startTimer();
-    } catch (error) {
-      console.error("Error fetching quizzes:", error);
-      document.querySelector(".main-content").innerHTML =
-        '<div class="alert alert-danger mt-5">Error loading quizzes. Please try again later.</div>';
-    }
-  }
+      document.getElementById("q-text").textContent = q.question;
+      document.getElementById("q-category").textContent = selectedCategory;
 
-  function loadQuestion(index) {
-    if (quizData.length === 0) return;
+      const options = document.querySelectorAll(".option-card");
 
-    const q = quizData[index];
-    document.getElementById("q-text").textContent = q.question;
-    document.getElementById("q-category").textContent = selectedCategory;
+      options.forEach(function (opt) {
+        const letter = opt.dataset.option;
 
-    const options = document.querySelectorAll(".option-card");
-    options.forEach((opt) => {
-      const letter = opt.dataset.option;
-      opt.querySelector(".option-text").textContent = q.options[letter];
-      opt.classList.remove("selected", "correct", "incorrect");
-      opt.classList.add("btn-light");
-      opt.classList.remove("btn-warning", "btn-success", "btn-danger");
+        opt.querySelector(".option-text").textContent = q.options[letter];
 
-      if (userAnswers[index] === letter) {
-        opt.classList.add("selected");
-        opt.classList.remove("btn-light");
-        opt.classList.add("btn-warning");
-      }
-    });
-
-    // Update progress
-    document.getElementById("question-counter").textContent =
-      `${index + 1}/${quizData.length}`;
-    document.getElementById("quiz-progress").style.width =
-      `${((index + 1) / quizData.length) * 100}%`;
-
-    // Update buttons
-    document.getElementById("prev-btn").disabled = index === 0;
-    document.getElementById("next-btn").innerHTML =
-      index === quizData.length - 1
-        ? 'Finish Quiz <i class="bi bi-flag-fill ms-1"></i>'
-        : 'Next <i class="bi bi-arrow-right ms-1"></i>';
-    document
-      .getElementById("next-btn")
-      .classList.toggle("btn-danger", index === quizData.length - 1);
-    document
-      .getElementById("next-btn")
-      .classList.toggle("btn-warning", index !== quizData.length - 1);
-  }
-
-  // Option click handler
-  document.querySelectorAll(".option-card").forEach((option) => {
-    option.addEventListener("click", function () {
-      const letter = this.dataset.option;
-      userAnswers[currentQuestion] = letter;
-
-      document.querySelectorAll(".option-card").forEach((opt) => {
-        opt.classList.remove("selected", "btn-warning");
+        opt.classList.remove("selected", "correct", "incorrect");
         opt.classList.add("btn-light");
+        opt.classList.remove("btn-warning", "btn-success", "btn-danger");
+
+        if (userAnswers[index] === letter) {
+          opt.classList.add("selected");
+          opt.classList.remove("btn-light");
+          opt.classList.add("btn-warning");
+        }
       });
-      this.classList.add("selected");
-      this.classList.remove("btn-light");
-      this.classList.add("btn-warning");
 
-      // Update score preview
-      const score = Object.keys(userAnswers).length;
-      document.getElementById("score-preview").textContent =
-        `Answered: ${score}/${quizData.length}`;
+      document.getElementById("question-counter").textContent =
+        `${index + 1}/${quizData.length}`;
+
+      document.getElementById("quiz-progress").style.width =
+        `${((index + 1) / quizData.length) * 100}%`;
+
+      prevBtn.disabled = index === 0;
+
+      nextBtn.innerHTML =
+        index === quizData.length - 1
+          ? 'Finish Quiz <i class="bi bi-flag-fill ms-1"></i>'
+          : 'Next <i class="bi bi-arrow-right ms-1"></i>';
+
+      nextBtn.classList.toggle("btn-danger", index === quizData.length - 1);
+      nextBtn.classList.toggle("btn-warning", index !== quizData.length - 1);
+    }
+
+    document.querySelectorAll(".option-card").forEach(function (option) {
+      option.addEventListener("click", function () {
+        const letter = this.dataset.option;
+
+        userAnswers[currentQuestion] = letter;
+
+        document.querySelectorAll(".option-card").forEach(function (opt) {
+          opt.classList.remove("selected", "btn-warning");
+          opt.classList.add("btn-light");
+        });
+
+        this.classList.add("selected");
+        this.classList.remove("btn-light");
+        this.classList.add("btn-warning");
+
+        const answeredCount = Object.keys(userAnswers).length;
+
+        document.getElementById("score-preview").textContent =
+          `Answered: ${answeredCount}/${quizData.length}`;
+      });
     });
-  });
 
-  // Navigation handlers
-  document.getElementById("prev-btn").addEventListener("click", () => {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      loadQuestion(currentQuestion);
-    }
-  });
+    prevBtn.addEventListener("click", function () {
+      if (currentQuestion > 0) {
+        currentQuestion -= 1;
+        loadQuestion(currentQuestion);
+      }
+    });
 
-  document.getElementById("next-btn").addEventListener("click", () => {
-    if (currentQuestion < quizData.length - 1) {
-      currentQuestion++;
-      loadQuestion(currentQuestion);
-    } else {
-      // Finish quiz
-      finishQuiz();
-    }
-  });
-
-  function startTimer() {
-    timerInterval = setInterval(() => {
-      elapsedTime++;
-      const timeRemaining = quizTimeLimit - elapsedTime;
-
-      if (timeRemaining <= 0) {
-        clearInterval(timerInterval);
+    nextBtn.addEventListener("click", function () {
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion += 1;
+        loadQuestion(currentQuestion);
+      } else {
         finishQuiz();
+      }
+    });
+
+    function startTimer() {
+      timerInterval = setInterval(function () {
+        elapsedTime += 1;
+
+        const timeRemaining = quizTimeLimit - elapsedTime;
+
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          finishQuiz();
+          return;
+        }
+
+        const mins = Math.floor(timeRemaining / 60);
+        const secs = timeRemaining % 60;
+
+        document.getElementById("time-elapsed").textContent =
+          `Time: ${mins}:${secs.toString().padStart(2, "0")}`;
+
+        if (timeRemaining <= 300) {
+          document.getElementById("time-elapsed").classList.add("text-danger");
+        }
+      }, 1000);
+    }
+
+    async function finishQuiz() {
+      if (quizFinished) {
         return;
       }
 
-      const mins = Math.floor(timeRemaining / 60);
-      const secs = timeRemaining % 60;
-      document.getElementById("time-elapsed").textContent =
-        `Time: ${mins}:${secs.toString().padStart(2, "0")}`;
+      quizFinished = true;
+      clearInterval(timerInterval);
 
-      // Change color when 5 minutes left
-      if (timeRemaining <= 300) {
-        document.getElementById("time-elapsed").classList.add("text-danger");
-      }
-    }, 1000);
-  }
+      const answers = {};
 
-  async function finishQuiz() {
-    if (quizFinished) return;
-    quizFinished = true;
-
-    clearInterval(timerInterval);
-
-    // Prepare answers object with question_id as keys
-    const answers = {};
-    quizData.forEach((q, idx) => {
-      answers[q.question_id] = userAnswers[idx] || null;
-    });
-
-    try {
-      const response = await fetch("/api/submit-quiz", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": "{{ csrf_token() }}",
-        },
-        body: JSON.stringify({
-          answers: answers,
-          time: elapsedTime,
-          category: selectedCategory,
-        }),
+      quizData.forEach(function (q, idx) {
+        answers[q.question_id] = userAnswers[idx] || null;
       });
 
-      if (response.ok) {
-        window.location.href = "{{ url_for('main.results') }}";
-      }
-    } catch (error) {
-      console.error("Error submitting quiz:", error);
-      alert("Error submitting quiz. Please try again.");
-    }
-  }
+      try {
+        const response = await fetch("/api/submit-quiz", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token() }}",
+          },
+          body: JSON.stringify({
+            answers: answers,
+            time: elapsedTime,
+            category: selectedCategory,
+          }),
+        });
 
-  // Category selection handlers
-  document.querySelectorAll(".category-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      // Remove selected class from all buttons
-      document.querySelectorAll(".category-btn").forEach((b) => {
-        b.classList.remove("active");
-        b.classList.add(
+        const data = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok) {
+          showPageMessage(
+            data.message || "You have already completed your quiz for today. Come back tomorrow for a new quiz.",
+            "warning"
+          );
+          hideQuizInterface();
+          return;
+        }
+
+        window.location.href = "{{ url_for('main.results') }}";
+
+      } catch (error) {
+        console.error("Error submitting quiz:", error);
+
+        quizFinished = false;
+
+        showPageMessage(
+          "Error submitting quiz. Please try again.",
+          "danger"
+        );
+      }
+    }
+
+    document.querySelectorAll(".category-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".category-btn").forEach(function (button) {
+          button.classList.remove("active");
+
+          button.classList.add(
+            "btn-outline-primary",
+            "btn-outline-success",
+            "btn-outline-warning"
+          );
+
+          button.classList.remove(
+            "btn-primary",
+            "btn-success",
+            "btn-warning"
+          );
+        });
+
+        this.classList.add("active");
+
+        this.classList.remove(
           "btn-outline-primary",
           "btn-outline-success",
-          "btn-outline-warning",
+          "btn-outline-warning"
         );
-        b.classList.remove("btn-primary", "btn-success", "btn-warning");
+
+        this.classList.add(
+          this.dataset.category === "Science"
+            ? "btn-primary"
+            : this.dataset.category === "Programming"
+              ? "btn-success"
+              : "btn-warning"
+        );
+
+        selectedCategory = this.dataset.category;
+        confirmCategoryBtn.disabled = false;
       });
-
-      // Add selected class to clicked button
-      this.classList.add("active");
-      this.classList.remove(
-        "btn-outline-primary",
-        "btn-outline-success",
-        "btn-outline-warning",
-      );
-      this.classList.add(
-        this.dataset.category === "Science"
-          ? "btn-primary"
-          : this.dataset.category === "Programming"
-            ? "btn-success"
-            : "btn-warning",
-      );
-
-      selectedCategory = this.dataset.category;
-      document.getElementById("confirm-category-btn").disabled = false;
     });
-  });
 
-  document
-    .getElementById("confirm-category-btn")
-    .addEventListener("click", function () {
+    confirmCategoryBtn.addEventListener("click", function () {
       if (selectedCategory) {
         fetchQuizzes(selectedCategory);
       }
     });
-
-  // Initialize - no need to fetch quizzes on load
-  document.addEventListener("DOMContentLoaded", function () {
-    // Page is ready, category selection is shown
   });
 </script>
-{% endblock %} {% endblock %}
+{% endblock %}

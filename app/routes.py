@@ -1,5 +1,6 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+
 from flask import (
     Blueprint,
     render_template,
@@ -11,9 +12,7 @@ from flask import (
     jsonify,
 )
 from flask_login import current_user, login_required, login_user, logout_user
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
@@ -29,17 +28,60 @@ from .db import (
 )
 from .models import RegisteredUser, UserAchievement
 
+
 main = Blueprint("main", __name__)
 
-# Requires GOOGLE_CLIENT_ID in .env (see Discord for setup instructions)
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+
+LOCAL_TZ = timezone(timedelta(hours=8))
+
+DAILY_QUIZ_COMPLETED_MESSAGE = (
+    "You have already completed your quiz for today. "
+    "Come back tomorrow for a new quiz."
+)
+
+
+def _local_today_bounds_utc():
+    now_local = datetime.now(LOCAL_TZ)
+
+    start_local = datetime(
+        now_local.year,
+        now_local.month,
+        now_local.day,
+        tzinfo=LOCAL_TZ,
+    )
+
+    end_local = start_local + timedelta(days=1)
+
+    return (
+        start_local.astimezone(timezone.utc),
+        end_local.astimezone(timezone.utc),
+    )
+
+
+def _user_completed_quiz_today(user_id):
+    start_utc, end_utc = _local_today_bounds_utc()
+
+    existing_result = (
+        QuizResult.query
+        .filter(
+            QuizResult.user_id == user_id,
+            QuizResult.completed_at >= start_utc,
+            QuizResult.completed_at < end_utc,
+        )
+        .first()
+    )
+
+    return existing_result is not None
 
 
 def _calculate_level(xp):
     level = 1
+
     for candidate_level, required_xp in sorted(XP_PER_LEVEL.items()):
         if xp >= required_xp:
             level = candidate_level
+
     return level
 
 
@@ -49,29 +91,34 @@ def _next_level_xp(level):
         for candidate_level, required_xp in sorted(XP_PER_LEVEL.items())
         if candidate_level > level
     ]
+
     if higher_levels:
         return higher_levels[0]
+
     return XP_PER_LEVEL.get(level, 0)
 
 
 def _update_user_progress(user, correct_count):
-    now = datetime.now(timezone.utc)
-    today = now.date()
+    now_utc = datetime.now(timezone.utc)
+    today_local = datetime.now(LOCAL_TZ).date()
 
     if user.last_active is None:
         user.streak = 1
     else:
         last_active = user.last_active
+
         if last_active.tzinfo is None:
             last_active = last_active.replace(tzinfo=timezone.utc)
 
-        days_since_last_quiz = (today - last_active.date()).days
+        last_active_local = last_active.astimezone(LOCAL_TZ).date()
+        days_since_last_quiz = (today_local - last_active_local).days
+
         if days_since_last_quiz == 1:
             user.streak += 1
         elif days_since_last_quiz > 1:
             user.streak = 1
 
-    user.last_active = now
+    user.last_active = now_utc
     user.xp += correct_count * 10
     user.level = _calculate_level(user.xp)
 
@@ -96,13 +143,22 @@ def _achievement_unlocked(key, user, result, correct_answers):
 
 
 def _unlock_achievements(user, result):
-    earned_keys = {achievement.achievement_key for achievement in user.achievements}
-    correct_answers = sum(quiz_result.score for quiz_result in user.quiz_results)
+    earned_keys = {
+        achievement.achievement_key
+        for achievement in user.achievements
+    }
+
+    correct_answers = sum(
+        quiz_result.score
+        for quiz_result in user.quiz_results
+    )
+
     newly_unlocked = []
 
     for key, definition in ACHIEVEMENTS.items():
         if key in earned_keys:
             continue
+
         if not _achievement_unlocked(key, user, result, correct_answers):
             continue
 
@@ -112,6 +168,7 @@ def _unlock_achievements(user, result):
                 earned_at=datetime.now(timezone.utc),
             )
         )
+
         newly_unlocked.append({"key": key, **definition})
 
     return newly_unlocked
@@ -134,62 +191,67 @@ def _achievement_cards_for(user):
     ]
 
 
-@main.route('/')
+@main.route("/")
 def index():
-    return redirect(url_for('main.login'))
+    return redirect(url_for("main.login"))
 
 
-@main.route('/home')
+@main.route("/home")
 def test():
-    return render_template('test-page.html')
+    return render_template("test-page.html")
 
 
-@main.route('/login', methods=['GET', 'POST'])
+@main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.profile'))
+        return redirect(url_for("main.profile"))
 
-    if request.method == 'POST':
-        identifier = request.form.get('identifier', '').strip()
-        password = request.form.get('password', '')
+    if request.method == "POST":
+        identifier = request.form.get("identifier", "").strip()
+        password = request.form.get("password", "")
 
         if not identifier or not password:
-            flash('Please enter both your username/email and password.', 'danger')
-            return render_template('login.html'), 400
+            flash("Please enter both your username/email and password.", "danger")
+            return render_template("login.html"), 400
 
         user = find_registered_user_by_identifier(identifier)
-        if user is None or not check_password_hash(user['password_hash'], password):
-            flash('Invalid username/email or password.', 'danger')
-            return render_template('login.html'), 401
+
+        if user is None or not check_password_hash(user["password_hash"], password):
+            flash("Invalid username/email or password.", "danger")
+            return render_template("login.html"), 401
 
         login_user(user, remember=bool(request.form.get("remember")))
-        flash('Logged in successfully.', 'success')
-        next_page = request.form.get('next') or request.args.get('next')
-        if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+
+        flash("Logged in successfully.", "success")
+
+        next_page = request.form.get("next") or request.args.get("next")
+
+        if next_page and next_page.startswith("/") and not next_page.startswith("//"):
             return redirect(next_page)
-        return redirect(url_for('main.profile'))
+
+        return redirect(url_for("main.profile"))
 
     return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
 
 
-@main.route('/logout')
+@main.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash('Logged out successfully.', 'success')
-    return redirect(url_for('main.login'))
+    flash("Logged out successfully.", "success")
+    return redirect(url_for("main.login"))
 
 
-@main.route('/register', methods=['GET', 'POST'])
+@main.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        first_name = request.form.get('first_name', '').strip()
-        last_name = request.form.get('last_name', '').strip()
-        email = request.form.get('email', '').strip()
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '')
-        confirm_password = request.form.get('confirm_password', '')
-        terms_read = request.form.get('terms_read', 'no')
+    if request.method == "POST":
+        first_name = request.form.get("first_name", "").strip()
+        last_name = request.form.get("last_name", "").strip()
+        email = request.form.get("email", "").strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        terms_read = request.form.get("terms_read", "no")
 
         required_fields = [
             first_name,
@@ -199,21 +261,24 @@ def register():
             password,
             confirm_password,
         ]
+
         if not all(required_fields):
-            flash('Please complete all registration fields.', 'danger')
-            return render_template('register.html'), 400
+            flash("Please complete all registration fields.", "danger")
+            return render_template("register.html"), 400
 
         if password != confirm_password:
-            flash('Passwords do not match.', 'danger')
-            return render_template('register.html'), 400
+            flash("Passwords do not match.", "danger")
+            return render_template("register.html"), 400
 
-        if terms_read != 'yes':
+        if terms_read != "yes":
             flash(
-                'Please read and accept the terms before creating an account.', 'danger'
+                "Please read and accept the terms before creating an account.",
+                "danger",
             )
-            return render_template('register.html'), 400
+            return render_template("register.html"), 400
 
         password_hash = generate_password_hash(password)
+
         try:
             save_registered_user(
                 first_name,
@@ -229,65 +294,114 @@ def register():
                 render_template("register.html", google_client_id=GOOGLE_CLIENT_ID),
                 409,
             )
-        flash("Account created successfully. You can now log in.", "success")
+
+        flash("Account created successfully. Please log in.", "success")
         return redirect(url_for("main.login"))
 
     return render_template("register.html", google_client_id=GOOGLE_CLIENT_ID)
 
 
-@main.route('/terms')
+@main.route("/terms")
 def terms():
-    return render_template('terms.html')
+    return render_template("terms.html")
 
 
-@main.route('/quiz')
+@main.route("/quiz")
+@login_required
 def quiz():
-    return render_template('quiz.html')
+    completed_today = _user_completed_quiz_today(current_user.id)
+
+    quiz_message = DAILY_QUIZ_COMPLETED_MESSAGE if completed_today else None
+
+    return render_template(
+        "quiz.html",
+        completed_today=completed_today,
+        quiz_message=quiz_message,
+    )
 
 
-@main.route('/leaderboard')
+@main.route("/leaderboard")
 def leaderboard():
-    return render_template('leaderboard.html')
+    return render_template("leaderboard.html")
 
 
-@main.route('/history')
+@main.route("/history")
 @login_required
 def history():
-    return render_template('history.html')
+    return render_template("history.html")
 
 
-@main.route('/api/quizzes')
+@main.route("/api/quiz-status")
+@login_required
+def quiz_status():
+    completed_today = _user_completed_quiz_today(current_user.id)
+
+    return jsonify(
+        {
+            "success": True,
+            "completed_today": completed_today,
+            "message": (
+                DAILY_QUIZ_COMPLETED_MESSAGE
+                if completed_today
+                else "You can complete today's quiz."
+            ),
+        }
+    )
+
+
+@main.route("/api/quizzes")
+@login_required
 def get_quizzes():
-    # Ensure sample quizzes exist
+    if _user_completed_quiz_today(current_user.id):
+        return jsonify(
+            {
+                "success": False,
+                "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+            }
+        ), 403
+
     add_sample_quizzes()
 
     category = request.args.get("category")
+
     if category:
         quizzes = Quiz.query.filter_by(category=category).all()
     else:
         quizzes = get_all_quizzes()
 
     quiz_list = []
+
     for quiz in quizzes:
         quiz_list.append(
             {
-                'question_id': quiz.question_id,
-                'question': quiz.question,
-                'options': {
-                    'A': quiz.selection_a,
-                    'B': quiz.selection_b,
-                    'C': quiz.selection_c,
-                    'D': quiz.selection_d,
+                "question_id": quiz.question_id,
+                "question": quiz.question,
+                "options": {
+                    "A": quiz.selection_a,
+                    "B": quiz.selection_b,
+                    "C": quiz.selection_c,
+                    "D": quiz.selection_d,
                 },
-                'correct': quiz.correct_answer,
+                "correct": quiz.correct_answer,
             }
         )
+
     return jsonify(quiz_list)
 
 
-@main.route('/api/submit-quiz', methods=['POST'])
+@main.route("/api/submit-quiz", methods=["POST"])
+@login_required
 def submit_quiz():
-    data = request.json
+    if _user_completed_quiz_today(current_user.id):
+        return jsonify(
+            {
+                "success": False,
+                "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+            }
+        ), 403
+
+    data = request.get_json(silent=True) or {}
+
     user_answers = data.get("answers", {})
     time_taken = data.get("time", 0)
     category = data.get("category")
@@ -296,6 +410,14 @@ def submit_quiz():
         quizzes = Quiz.query.filter_by(category=category).all()
     else:
         quizzes = get_all_quizzes()
+
+    if not quizzes:
+        return jsonify(
+            {
+                "success": False,
+                "message": "No quizzes found.",
+            }
+        ), 404
 
     correct_count = 0
     results = []
@@ -310,38 +432,39 @@ def submit_quiz():
 
         results.append(
             {
-                'question_id': question_id,
-                'question': quiz.question,
-                'user_answer': user_answer,
-                'correct_answer': quiz.correct_answer,
-                'is_correct': is_correct,
-                'options': {
-                    'A': quiz.selection_a,
-                    'B': quiz.selection_b,
-                    'C': quiz.selection_c,
-                    'D': quiz.selection_d,
+                "question_id": question_id,
+                "question": quiz.question,
+                "user_answer": user_answer,
+                "correct_answer": quiz.correct_answer,
+                "is_correct": is_correct,
+                "options": {
+                    "A": quiz.selection_a,
+                    "B": quiz.selection_b,
+                    "C": quiz.selection_c,
+                    "D": quiz.selection_d,
                 },
             }
         )
 
-    # Persist to DB if user is logged in
-    newly_unlocked = []
-    if current_user.is_authenticated:
-        result = QuizResult(
-            user_id=current_user.id,
-            category=category or "General",
-            score=correct_count,
-            total=len(quizzes),
-            time_taken=time_taken,
-            completed_at=datetime.now(timezone.utc),
-        )
-        db.session.add(result)
-        _update_user_progress(current_user, correct_count)
-        db.session.flush()
-        newly_unlocked = _unlock_achievements(current_user, result)
-        db.session.commit()
+    result = QuizResult(
+        user_id=current_user.id,
+        category=category or "General",
+        score=correct_count,
+        total=len(quizzes),
+        time_taken=time_taken,
+        completed_at=datetime.now(timezone.utc),
+    )
 
-    # Store results in session for results page
+    db.session.add(result)
+
+    _update_user_progress(current_user, correct_count)
+
+    db.session.flush()
+
+    newly_unlocked = _unlock_achievements(current_user, result)
+
+    db.session.commit()
+
     session["quiz_results"] = {
         "score": correct_count,
         "total": len(quizzes),
@@ -352,69 +475,175 @@ def submit_quiz():
         "new_achievements": newly_unlocked,
     }
 
-    return jsonify({'success': True, 'score': correct_count, 'total': len(quizzes)})
+    return jsonify(
+        {
+            "success": True,
+            "score": correct_count,
+            "total": len(quizzes),
+        }
+    )
 
 
-@main.route('/profile')
+@main.route("/profile")
 @login_required
 def profile():
     user = find_registered_user_by_id(current_user.id)
 
     if user is None:
         logout_user()
-        flash('User account not found. Please log in again.', 'warning')
-        return redirect(url_for('main.login'))
+        flash("User account not found. Please log in again.", "warning")
+        return redirect(url_for("main.login"))
 
     next_level_xp = _next_level_xp(user.level)
     current_level_xp = XP_PER_LEVEL.get(user.level, 0)
     level_span = max(next_level_xp - current_level_xp, 1)
-    best_score = max((r.score for r in user.quiz_results), default=0)
-    correct_answers = sum(r.score for r in user.quiz_results)
+
+    best_score = max((result.score for result in user.quiz_results), default=0)
+    correct_answers = sum(result.score for result in user.quiz_results)
 
     profile_data = {
-        'full_name': f'{user.first_name} {user.last_name}',
-        'username': user.username,
-        'email': user.email,
-        'level': user.level,
-        'title': LEVEL_TITLES.get(user.level, 'Quokka Legend'),
-        'xp': user.xp,
-        'next_level_xp': next_level_xp,
-        'xp_percent': max(
+        "full_name": f"{user.first_name} {user.last_name}",
+        "username": user.username,
+        "email": user.email,
+        "level": user.level,
+        "title": LEVEL_TITLES.get(user.level, "Quokka Legend"),
+        "xp": user.xp,
+        "next_level_xp": next_level_xp,
+        "xp_percent": max(
             min(round((user.xp - current_level_xp) / level_span * 100), 100),
             0,
         ),
-        'streak': user.streak,
-        'quiz_wins': len(user.quiz_results),
-        'best_score': best_score,
-        'correct_answers': correct_answers,
+        "streak": user.streak,
+        "quiz_wins": len(user.quiz_results),
+        "best_score": best_score,
+        "correct_answers": correct_answers,
+        "completed_today": _user_completed_quiz_today(user.id),
     }
 
     achievements = _achievement_cards_for(user)
 
-    recent_history = session.get('quiz_results')
-
     return render_template(
-        'userProfile.html',
+        "userProfile.html",
         profile=profile_data,
         achievements=achievements,
-        recent_history=recent_history,
     )
 
 
-@main.route('/results')
+@main.route("/users")
+@login_required
+def search_users_page():
+    return render_template("userSearch.html")
+
+
+@main.route("/api/users/search")
+@login_required
+def search_registered_users():
+    search_query = request.args.get("q", "").strip()
+
+    if len(search_query) < 2:
+        return jsonify(
+            {
+                "success": True,
+                "users": [],
+            }
+        )
+
+    search_pattern = f"%{search_query}%"
+
+    users = (
+        RegisteredUser.query
+        .filter(
+            or_(
+                RegisteredUser.username.ilike(search_pattern),
+                RegisteredUser.first_name.ilike(search_pattern),
+                RegisteredUser.last_name.ilike(search_pattern),
+            )
+        )
+        .order_by(RegisteredUser.username.asc())
+        .limit(10)
+        .all()
+    )
+
+    user_list = []
+
+    for user in users:
+        user_list.append(
+            {
+                "username": user.username,
+                "full_name": f"{user.first_name} {user.last_name}",
+                "level": user.level,
+                "title": LEVEL_TITLES.get(user.level, "Quokka Legend"),
+                "xp": user.xp,
+                "streak": user.streak,
+                "profile_url": url_for(
+                    "main.public_user_profile",
+                    username=user.username,
+                ),
+                "is_current_user": user.id == current_user.id,
+            }
+        )
+
+    return jsonify(
+        {
+            "success": True,
+            "users": user_list,
+        }
+    )
+
+
+@main.route("/users/<username>")
+@login_required
+def public_user_profile(username):
+    user = RegisteredUser.query.filter_by(username=username).first_or_404()
+
+    best_score = max((result.score for result in user.quiz_results), default=0)
+    correct_answers = sum(result.score for result in user.quiz_results)
+    quiz_count = len(user.quiz_results)
+
+    profile_data = {
+        "full_name": f"{user.first_name} {user.last_name}",
+        "username": user.username,
+        "level": user.level,
+        "title": LEVEL_TITLES.get(user.level, "Quokka Legend"),
+        "xp": user.xp,
+        "streak": user.streak,
+        "quiz_count": quiz_count,
+        "best_score": best_score,
+        "correct_answers": correct_answers,
+        "is_current_user": user.id == current_user.id,
+    }
+
+    recent_results = (
+        QuizResult.query
+        .filter_by(user_id=user.id)
+        .order_by(QuizResult.completed_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template(
+        "publicUserProfile.html",
+        profile=profile_data,
+        recent_results=recent_results,
+    )
+
+
+@main.route("/results")
 def results():
-    return render_template('results.html')
+    return render_template("results.html")
 
 
-@main.route('/api/quiz-results')
+@main.route("/api/quiz-results")
 def get_quiz_results():
-    quiz_results = session.get('quiz_results', None)
+    quiz_results = session.get("quiz_results", None)
+
     if not quiz_results:
         return jsonify({"quiz_results": None})
+
     return jsonify({"quiz_results": quiz_results})
 
 
-@main.route('/api/history')
+@main.route("/api/history")
 @login_required
 def get_history():
     results = (
@@ -426,65 +655,76 @@ def get_history():
 
     history = [
         {
-            'category': result.category,
-            'score': result.score,
-            'total': result.total,
-            'time_taken': result.time_taken,
-            'completed_at': result.completed_at.isoformat(),
+            "category": result.category,
+            "score": result.score,
+            "total": result.total,
+            "time_taken": result.time_taken,
+            "completed_at": result.completed_at.isoformat(),
         }
         for result in results
     ]
 
-    return jsonify({'history': history})
+    return jsonify({"history": history})
 
-  
-@main.route('/api/leaderboard')
+
+@main.route("/api/leaderboard")
 def get_leaderboard():
-    today = datetime.now(timezone.utc).date()
+    start_utc, end_utc = _local_today_bounds_utc()
     current_user_id = current_user.id if current_user.is_authenticated else None
 
-    # Today's scores — best score per user, tiebreak by fastest time
     today_results = (
         db.session.query(QuizResult, RegisteredUser)
         .join(RegisteredUser, QuizResult.user_id == RegisteredUser.id)
-        .filter(func.date(QuizResult.completed_at) == today)
+        .filter(
+            QuizResult.completed_at >= start_utc,
+            QuizResult.completed_at < end_utc,
+        )
         .order_by(QuizResult.score.desc(), QuizResult.time_taken.asc())
         .all()
     )
 
     seen = set()
     today_list = []
+
     for result, user in today_results:
         if user.id in seen:
             continue
+
         seen.add(user.id)
+
         today_list.append(
             {
-                'username': user.username,
-                'score': result.score,
-                'total': result.total,
-                'time_taken': result.time_taken,
-                'streak': user.streak,
-                'is_current_user': user.id == current_user_id,
+                "username": user.username,
+                "score": result.score,
+                "total": result.total,
+                "time_taken": result.time_taken,
+                "streak": user.streak,
+                "is_current_user": user.id == current_user_id,
             }
         )
 
-    # All-time XP, sorted by XP descending
     quiz_counts = dict(
         db.session.query(QuizResult.user_id, func.count(QuizResult.id))
         .group_by(QuizResult.user_id)
         .all()
     )
+
     alltime_users = RegisteredUser.query.order_by(RegisteredUser.xp.desc()).all()
+
     alltime_list = [
         {
-            'username': user.username,
-            'xp': user.xp,
-            'streak': user.streak,
-            'quiz_count': quiz_counts.get(user.id, 0),
-            'is_current_user': user.id == current_user_id,
+            "username": user.username,
+            "xp": user.xp,
+            "streak": user.streak,
+            "quiz_count": quiz_counts.get(user.id, 0),
+            "is_current_user": user.id == current_user_id,
         }
         for user in alltime_users
     ]
 
-    return jsonify({'today': today_list, 'all_time': alltime_list})
+    return jsonify(
+        {
+            "today": today_list,
+            "all_time": alltime_list,
+        }
+    )
