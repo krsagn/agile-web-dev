@@ -74,6 +74,12 @@ ACHIEVEMENTS = {
         "quokka": "Math Quokka",
         "badge_class": "quokka-math",
     },
+    "geography_ace": {
+        "name": "World Wanderer",
+        "description": "Get a perfect score in Geography",
+        "quokka": "Explorer Quokka",
+        "badge_class": "quokka-explorer",
+    },
     "hundred_correct": {
         "name": "Hundred Seeds",
         "description": "Answer 100 questions correctly",

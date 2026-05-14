@@ -293,6 +293,8 @@ def add_sample_quizzes():
         db.session.add(Quiz(category="Programming", **q))
     for q in math_questions:
         db.session.add(Quiz(category="Math", **q))
+    for q in geography_questions:
+        db.session.add(Quiz(category="Geography", **q))
 
     db.session.commit()
 
