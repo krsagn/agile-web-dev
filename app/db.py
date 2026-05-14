@@ -204,6 +204,89 @@ def add_sample_quizzes():
         },
     ]
 
+    geography_questions = [
+        {
+            "question": "What is the capital of France?",
+            "selection_a": "Lyon",
+            "selection_b": "Paris",
+            "selection_c": "Marseille",
+            "selection_d": "Nice",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which country is the largest by land area?",
+            "selection_a": "Canada",
+            "selection_b": "China",
+            "selection_c": "Russia",
+            "selection_d": "United States",
+            "correct_answer": "C",
+        },
+        {
+            "question": "What is the longest river in the world?",
+            "selection_a": "Amazon River",
+            "selection_b": "Yangtze River",
+            "selection_c": "Nile River",
+            "selection_d": "Mississippi River",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which mountain range contains Mount Everest?",
+            "selection_a": "Rockies",
+            "selection_b": "Alps",
+            "selection_c": "Andes",
+            "selection_d": "Himalayas",
+            "correct_answer": "D",
+        },
+        {
+            "question": "What is the capital of Japan?",
+            "selection_a": "Osaka",
+            "selection_b": "Tokyo",
+            "selection_c": "Kyoto",
+            "selection_d": "Yokohama",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which desert is the largest in the world?",
+            "selection_a": "Gobi Desert",
+            "selection_b": "Sahara Desert",
+            "selection_c": "Arabian Desert",
+            "selection_d": "Kalahari Desert",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the capital of Australia?",
+            "selection_a": "Sydney",
+            "selection_b": "Melbourne",
+            "selection_c": "Canberra",
+            "selection_d": "Brisbane",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which country has the most islands?",
+            "selection_a": "Indonesia",
+            "selection_b": "Philippines",
+            "selection_c": "Norway",
+            "selection_d": "Finland",
+            "correct_answer": "A",
+        },
+        {
+            "question": "What is the deepest ocean on Earth?",
+            "selection_a": "Atlantic Ocean",
+            "selection_b": "Indian Ocean",
+            "selection_c": "Arctic Ocean",
+            "selection_d": "Pacific Ocean",
+            "correct_answer": "D",
+        },
+        {
+            "question": "Which continent is the smallest by land area?",
+            "selection_a": "Europe",
+            "selection_b": "Australia",
+            "selection_c": "Africa",
+            "selection_d": "South America",
+            "correct_answer": "B",
+        },
+    ]
+
     math_questions = [
         {
             "question": "What is the value of π (pi) approximately?",
