@@ -1,6 +1,9 @@
 import os
+import re
 from datetime import datetime, timezone, timedelta
 
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from flask import (
     Blueprint,
     render_template,
@@ -15,6 +18,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy import func, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from . import csrf
 from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
 from .db import (
     db,
@@ -39,6 +43,30 @@ DAILY_QUIZ_COMPLETED_MESSAGE = (
     "You have already completed your quiz for today. "
     "Come back tomorrow for a new quiz."
 )
+
+
+def _auth_template_context():
+    return {
+        "google_client_id": GOOGLE_CLIENT_ID,
+        "google_login_uri": url_for("main.google_auth", _external=True),
+    }
+
+
+def _build_unique_username(email, name):
+    preferred = name or email.split("@", 1)[0]
+    base_username = re.sub(r"[^a-zA-Z0-9_]+", "_", preferred).strip("_").lower()
+
+    if not base_username:
+        base_username = "google_user"
+
+    username = base_username
+    suffix = 1
+
+    while RegisteredUser.query.filter_by(username=username).first() is not None:
+        suffix += 1
+        username = f"{base_username}_{suffix}"
+
+    return username
 
 
 def _local_today_bounds_utc():
@@ -212,13 +240,13 @@ def login():
 
         if not identifier or not password:
             flash("Please enter both your username/email and password.", "danger")
-            return render_template("login.html"), 400
+            return render_template("login.html", **_auth_template_context()), 400
 
         user = find_registered_user_by_identifier(identifier)
 
         if user is None or not check_password_hash(user["password_hash"], password):
             flash("Invalid username/email or password.", "danger")
-            return render_template("login.html"), 401
+            return render_template("login.html", **_auth_template_context()), 401
 
         login_user(user, remember=bool(request.form.get("remember")))
 
@@ -231,7 +259,68 @@ def login():
 
         return redirect(url_for("main.profile"))
 
-    return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
+    return render_template("login.html", **_auth_template_context())
+
+# google authentication route - accepts POST requests from the client with the Google ID token credential, 
+# verifies it, and logs the user in or creates a new account if necessary.
+@main.route("/auth/google", methods=["POST"])
+@csrf.exempt
+def google_auth():
+    if not GOOGLE_CLIENT_ID:
+        flash("Google sign-in is not configured for this app.", "danger")
+        return redirect(url_for("main.login"))
+
+    credential = request.form.get("credential", "")
+
+    if not credential:
+        flash("Google did not return a sign-in credential.", "danger")
+        return redirect(url_for("main.login"))
+
+    try:
+        token_info = id_token.verify_oauth2_token(
+            credential,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except ValueError:
+        flash("Google sign-in could not be verified. Please try again.", "danger")
+        return redirect(url_for("main.login"))
+
+    email = token_info.get("email", "").strip().lower()
+
+    if not email:
+        flash("Google did not share an email address for this account.", "danger")
+        return redirect(url_for("main.login"))
+
+    if token_info.get("email_verified") is False:
+        flash("Please verify your Google email address before signing in.", "danger")
+        return redirect(url_for("main.login"))
+
+    user = RegisteredUser.query.filter_by(email=email).first()
+
+    if user is None:
+        given_name = token_info.get("given_name", "").strip()
+        family_name = token_info.get("family_name", "").strip()
+        full_name = token_info.get("name", "").strip()
+
+        if not given_name and full_name:
+            given_name = full_name.split(" ", 1)[0]
+
+        user = RegisteredUser(
+            first_name=given_name or "Google",
+            last_name=family_name or "User",
+            email=email,
+            username=_build_unique_username(email, full_name),
+            password_hash=generate_password_hash(os.urandom(32).hex()),
+            terms_read=True,
+            created_at=datetime.now(timezone.utc),
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    flash("Logged in with Google successfully.", "success")
+    return redirect(url_for("main.profile"))
 
 
 @main.route("/logout")
@@ -264,18 +353,18 @@ def register():
 
         if not all(required_fields):
             flash("Please complete all registration fields.", "danger")
-            return render_template("register.html"), 400
+            return render_template("register.html", **_auth_template_context()), 400
 
         if password != confirm_password:
             flash("Passwords do not match.", "danger")
-            return render_template("register.html"), 400
+            return render_template("register.html", **_auth_template_context()), 400
 
         if terms_read != "yes":
             flash(
                 "Please read and accept the terms before creating an account.",
                 "danger",
             )
-            return render_template("register.html"), 400
+            return render_template("register.html", **_auth_template_context()), 400
 
         password_hash = generate_password_hash(password)
 
@@ -291,14 +380,14 @@ def register():
         except Exception:
             flash("An account with that email or username already exists.", "danger")
             return (
-                render_template("register.html", google_client_id=GOOGLE_CLIENT_ID),
+                render_template("register.html", **_auth_template_context()),
                 409,
             )
 
         flash("Account created successfully. Please log in.", "success")
         return redirect(url_for("main.login"))
 
-    return render_template("register.html", google_client_id=GOOGLE_CLIENT_ID)
+    return render_template("register.html", **_auth_template_context())
 
 
 @main.route("/terms")
