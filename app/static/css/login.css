@@ -656,6 +656,22 @@ body {
   margin-right: 0.5rem;
 }
 
+.google-auth-button {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.google-auth-button .g_id_signin {
+  display: flex;
+  justify-content: center;
+  width: min(100%, 320px);
+}
+
+.google-auth-button iframe {
+  max-width: 100%;
+}
+
 .signup-copy {
   margin: 1.5rem 0 0;
   color: #969cb1;

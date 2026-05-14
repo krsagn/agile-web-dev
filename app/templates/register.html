@@ -277,20 +277,32 @@
                     <span>or sign up with</span>
                   </div>
 
-                  <div id="g_id_onload"
-                    data-client_id="{{ google_client_id }}"
-                    data-login_uri="{{ google_login_uri }}"
-                    data-auto_prompt="false">
-                </div>
+                  {% if google_client_id %}
+                    <div
+                      id="g_id_onload"
+                      data-client_id="{{ google_client_id }}"
+                      data-login_uri="{{ google_login_uri }}"
+                      data-auto_prompt="false"
+                    ></div>
 
-                <div class="g_id_signin"
-                    data-type="standard"
-                    data-size="large"
-                    data-theme="outline"
-                    data-text="signup_with"
-                    data-shape="rectangular"
-                    data-logo_alignment="left">
-                </div>
+                    <div class="google-auth-button" aria-label="Sign up with Google">
+                      <div
+                        class="g_id_signin"
+                        data-type="standard"
+                        data-size="large"
+                        data-theme="outline"
+                        data-text="signup_with"
+                        data-shape="rectangular"
+                        data-logo_alignment="left"
+                        data-width="320"
+                      ></div>
+                    </div>
+                  {% else %}
+                    <button class="btn social-btn w-100" type="button" disabled>
+                      <i class="bi bi-google"></i>
+                      Google sign-up unavailable
+                    </button>
+                  {% endif %}
 
                   <p class="switch-copy">
                     Already have an account?
