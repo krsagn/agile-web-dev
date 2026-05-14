@@ -80,6 +80,12 @@ ACHIEVEMENTS = {
         "quokka": "Explorer Quokka",
         "badge_class": "quokka-explorer",
     },
+    "biology_ace": {
+        "name": "Life Scientist",
+        "description": "Get a perfect score in Biology",
+        "quokka": "Bio Quokka",
+        "badge_class": "quokka-bio",
+    },
     "hundred_correct": {
         "name": "Hundred Seeds",
         "description": "Answer 100 questions correctly",
