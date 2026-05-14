@@ -19,7 +19,7 @@
   background: white;
   border-radius: 25px;
   padding: 30px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   text-align: center;
   margin-bottom: 30px;
 }
@@ -42,53 +42,72 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 16px 24px;
-  border-radius: 20px;
+  padding: 18px 24px;
+  border-radius: 22px;
   font-weight: 600;
   font-size: 16px;
-  border: 2px solid;
+  border: none;
   background: white;
   color: #666;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .category-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .category-btn.active {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 140, 102, 0.25);
 }
 
 .category-btn[data-category="Science"] {
-  border-color: #007bff;
+  color: #2d2757;
 }
 
 .category-btn[data-category="Science"].active {
-  background: #007bff;
+  background: #ff8c66;
   color: white;
 }
 
 .category-btn[data-category="Programming"] {
-  border-color: #28a745;
+  color: #2d2757;
 }
 
 .category-btn[data-category="Programming"].active {
-  background: #28a745;
+  background: #ff8c66;
   color: white;
 }
 
 .category-btn[data-category="Math"] {
-  border-color: #ffc107;
+  color: #2d2757;
 }
 
 .category-btn[data-category="Math"].active {
-  background: #ffc107;
-  color: #212529;
+  background: #ff8c66;
+  color: white;
+}
+
+.category-btn[data-category="Geography"] {
+  color: #2d2757;
+}
+
+.category-btn[data-category="Geography"].active {
+  background: #ff8c66;
+  color: white;
+}
+
+.category-btn[data-category="Biology"] {
+  color: #2d2757;
+}
+
+.category-btn[data-category="Biology"].active {
+  background: #ff8c66;
+  color: white;
 }
 
 .start-btn {
@@ -99,23 +118,25 @@
   border-radius: 25px;
   font-weight: 600;
   font-size: 16px;
-  background: #ffc107;
-  color: #212529;
+  background: #ff8c66;
+  color: white;
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 140, 102, 0.25);
 }
 
 .start-btn:hover:not(:disabled) {
-  background: #e0a800;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  background: #ff7750;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(255, 140, 102, 0.35);
 }
 
 .start-btn:disabled {
   background: #ccc;
-  color: #666;
+  color: #999;
   cursor: not-allowed;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Quiz Content */
