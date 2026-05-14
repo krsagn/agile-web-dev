@@ -35,7 +35,7 @@ def get_all_quizzes():
 
 
 def add_sample_quizzes():
-    if Quiz.query.count() >= 30:
+    if Quiz.query.count() >= 50:
         return
 
     science_questions = [
@@ -204,6 +204,89 @@ def add_sample_quizzes():
         },
     ]
 
+    geography_questions = [
+        {
+            "question": "What is the capital of France?",
+            "selection_a": "Lyon",
+            "selection_b": "Paris",
+            "selection_c": "Marseille",
+            "selection_d": "Nice",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which country is the largest by land area?",
+            "selection_a": "Canada",
+            "selection_b": "China",
+            "selection_c": "Russia",
+            "selection_d": "United States",
+            "correct_answer": "C",
+        },
+        {
+            "question": "What is the longest river in the world?",
+            "selection_a": "Amazon River",
+            "selection_b": "Yangtze River",
+            "selection_c": "Nile River",
+            "selection_d": "Mississippi River",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which mountain range contains Mount Everest?",
+            "selection_a": "Rockies",
+            "selection_b": "Alps",
+            "selection_c": "Andes",
+            "selection_d": "Himalayas",
+            "correct_answer": "D",
+        },
+        {
+            "question": "What is the capital of Japan?",
+            "selection_a": "Osaka",
+            "selection_b": "Tokyo",
+            "selection_c": "Kyoto",
+            "selection_d": "Yokohama",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which desert is the largest in the world?",
+            "selection_a": "Gobi Desert",
+            "selection_b": "Sahara Desert",
+            "selection_c": "Arabian Desert",
+            "selection_d": "Kalahari Desert",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the capital of Australia?",
+            "selection_a": "Sydney",
+            "selection_b": "Melbourne",
+            "selection_c": "Canberra",
+            "selection_d": "Brisbane",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which country has the most islands?",
+            "selection_a": "Indonesia",
+            "selection_b": "Philippines",
+            "selection_c": "Norway",
+            "selection_d": "Finland",
+            "correct_answer": "A",
+        },
+        {
+            "question": "What is the deepest ocean on Earth?",
+            "selection_a": "Atlantic Ocean",
+            "selection_b": "Indian Ocean",
+            "selection_c": "Arctic Ocean",
+            "selection_d": "Pacific Ocean",
+            "correct_answer": "D",
+        },
+        {
+            "question": "Which continent is the smallest by land area?",
+            "selection_a": "Europe",
+            "selection_b": "Australia",
+            "selection_c": "Africa",
+            "selection_d": "South America",
+            "correct_answer": "B",
+        },
+    ]
+
     math_questions = [
         {
             "question": "What is the value of π (pi) approximately?",
@@ -287,12 +370,99 @@ def add_sample_quizzes():
         },
     ]
 
+    biology_questions = [
+        {
+            "question": "What is the powerhouse of the cell?",
+            "selection_a": "Nucleus",
+            "selection_b": "Ribosome",
+            "selection_c": "Mitochondria",
+            "selection_d": "Endoplasmic Reticulum",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which molecule carries genetic information?",
+            "selection_a": "Protein",
+            "selection_b": "DNA",
+            "selection_c": "Carbohydrate",
+            "selection_d": "Lipid",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the process by which plants make their own food?",
+            "selection_a": "Respiration",
+            "selection_b": "Photosynthesis",
+            "selection_c": "Transpiration",
+            "selection_d": "Fermentation",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which organelle is responsible for protein synthesis?",
+            "selection_a": "Golgi apparatus",
+            "selection_b": "Lysosome",
+            "selection_c": "Ribosome",
+            "selection_d": "Vacuole",
+            "correct_answer": "C",
+        },
+        {
+            "question": "What is the basic unit of life?",
+            "selection_a": "Atom",
+            "selection_b": "Molecule",
+            "selection_c": "Cell",
+            "selection_d": "Tissue",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which blood cells are responsible for fighting infections?",
+            "selection_a": "Red blood cells",
+            "selection_b": "White blood cells",
+            "selection_c": "Platelets",
+            "selection_d": "Plasma",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the process of cell division in somatic cells called?",
+            "selection_a": "Meiosis",
+            "selection_b": "Mitosis",
+            "selection_c": "Binary fission",
+            "selection_d": "Budding",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which vitamin is produced by the skin when exposed to sunlight?",
+            "selection_a": "Vitamin A",
+            "selection_b": "Vitamin B",
+            "selection_c": "Vitamin C",
+            "selection_d": "Vitamin D",
+            "correct_answer": "D",
+        },
+        {
+            "question": "What is the largest organ in the human body?",
+            "selection_a": "Heart",
+            "selection_b": "Liver",
+            "selection_c": "Skin",
+            "selection_d": "Brain",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which type of blood vessel carries blood away from the heart?",
+            "selection_a": "Vein",
+            "selection_b": "Artery",
+            "selection_c": "Capillary",
+            "selection_d": "Venule",
+            "correct_answer": "B",
+        },
+    ]
+
     for q in science_questions:
         db.session.add(Quiz(category="Science", **q))
     for q in programming_questions:
         db.session.add(Quiz(category="Programming", **q))
     for q in math_questions:
         db.session.add(Quiz(category="Math", **q))
+    for q in geography_questions:
+        db.session.add(Quiz(category="Geography", **q))
+    for q in biology_questions:
+        db.session.add(Quiz(category="Biology", **q))
 
     db.session.commit()
 

@@ -40,6 +40,14 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
         <button class="category-btn" data-category="Math">
           <i class="bi bi-calculator"></i> Math Quiz
         </button>
+
+        <button class="category-btn" data-category="Geography">
+          <i class="bi bi-globe"></i> Geography Quiz
+        </button>
+
+        <button class="category-btn" data-category="Biology">
+          <i class="bi bi-dna"></i> Biology Quiz
+        </button>
       </div>
 
       <button class="start-btn" id="confirm-category-btn" disabled>
@@ -124,7 +132,7 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
     let quizData = [];
     let currentQuestion = 0;
     let userAnswers = {};
-    let quizTimeLimit = 20 * 60;
+    let quizTimeLimit = 10 * 60;
     let elapsedTime = 0;
     let timerInterval = null;
     let quizFinished = false;
