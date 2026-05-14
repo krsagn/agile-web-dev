@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
@@ -32,12 +33,11 @@ from .db import (
 )
 from .models import RegisteredUser, UserAchievement
 
-
 main = Blueprint("main", __name__)
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
-LOCAL_TZ = timezone(timedelta(hours=8))
+LOCAL_TZ = ZoneInfo("Australia/Perth")
 
 DAILY_QUIZ_COMPLETED_MESSAGE = (
     "You have already completed your quiz for today. "
@@ -90,15 +90,11 @@ def _local_today_bounds_utc():
 def _user_completed_quiz_today(user_id):
     start_utc, end_utc = _local_today_bounds_utc()
 
-    existing_result = (
-        QuizResult.query
-        .filter(
-            QuizResult.user_id == user_id,
-            QuizResult.completed_at >= start_utc,
-            QuizResult.completed_at < end_utc,
-        )
-        .first()
-    )
+    existing_result = QuizResult.query.filter(
+        QuizResult.user_id == user_id,
+        QuizResult.completed_at >= start_utc,
+        QuizResult.completed_at < end_utc,
+    ).first()
 
     return existing_result is not None
 
@@ -171,15 +167,9 @@ def _achievement_unlocked(key, user, result, correct_answers):
 
 
 def _unlock_achievements(user, result):
-    earned_keys = {
-        achievement.achievement_key
-        for achievement in user.achievements
-    }
+    earned_keys = {achievement.achievement_key for achievement in user.achievements}
 
-    correct_answers = sum(
-        quiz_result.score
-        for quiz_result in user.quiz_results
-    )
+    correct_answers = sum(quiz_result.score for quiz_result in user.quiz_results)
 
     newly_unlocked = []
 
@@ -442,12 +432,15 @@ def quiz_status():
 @login_required
 def get_quizzes():
     if _user_completed_quiz_today(current_user.id):
-        return jsonify(
-            {
-                "success": False,
-                "message": DAILY_QUIZ_COMPLETED_MESSAGE,
-            }
-        ), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+                }
+            ),
+            403,
+        )
 
     add_sample_quizzes()
 
@@ -482,12 +475,15 @@ def get_quizzes():
 @login_required
 def submit_quiz():
     if _user_completed_quiz_today(current_user.id):
-        return jsonify(
-            {
-                "success": False,
-                "message": DAILY_QUIZ_COMPLETED_MESSAGE,
-            }
-        ), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+                }
+            ),
+            403,
+        )
 
     data = request.get_json(silent=True) or {}
 
@@ -501,12 +497,15 @@ def submit_quiz():
         quizzes = get_all_quizzes()
 
     if not quizzes:
-        return jsonify(
-            {
-                "success": False,
-                "message": "No quizzes found.",
-            }
-        ), 404
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "No quizzes found.",
+                }
+            ),
+            404,
+        )
 
     correct_count = 0
     results = []
@@ -640,8 +639,7 @@ def search_registered_users():
     search_pattern = f"%{search_query}%"
 
     users = (
-        RegisteredUser.query
-        .filter(
+        RegisteredUser.query.filter(
             or_(
                 RegisteredUser.username.ilike(search_pattern),
                 RegisteredUser.first_name.ilike(search_pattern),
@@ -703,8 +701,7 @@ def public_user_profile(username):
     }
 
     recent_results = (
-        QuizResult.query
-        .filter_by(user_id=user.id)
+        QuizResult.query.filter_by(user_id=user.id)
         .order_by(QuizResult.completed_at.desc())
         .limit(5)
         .all()
@@ -736,8 +733,7 @@ def get_quiz_results():
 @login_required
 def get_history():
     results = (
-        QuizResult.query
-        .filter_by(user_id=current_user.id)
+        QuizResult.query.filter_by(user_id=current_user.id)
         .order_by(QuizResult.completed_at.desc())
         .all()
     )
