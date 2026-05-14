@@ -1,3 +1,24 @@
+window.handleGoogleCredential = (response) => {
+  if (!response || !response.credential) {
+    return;
+  }
+
+  const form = document.createElement("form");
+  const credentialInput = document.createElement("input");
+
+  form.method = "post";
+  form.action = "/auth/google";
+  form.style.display = "none";
+
+  credentialInput.type = "hidden";
+  credentialInput.name = "credential";
+  credentialInput.value = response.credential;
+
+  form.appendChild(credentialInput);
+  document.body.appendChild(form);
+  form.submit();
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const toggleButtons = document.querySelectorAll("[data-password-toggle]");
   const popupLinks = document.querySelectorAll("[data-popup-link]");
