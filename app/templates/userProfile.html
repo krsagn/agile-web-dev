@@ -1,5 +1,9 @@
-{% extends 'layout.html' %} {% set active_page = 'profile' %} {% block title
-%}Profile — Quokka{% endblock %} {% block content %}
+{% extends 'layout.html' %}
+{% set active_page = 'profile' %}
+
+{% block title %}Profile, Quokka{% endblock %}
+
+{% block content %}
 <h1 class="page-title">Profile</h1>
 
 <section class="profile-card">
@@ -79,9 +83,11 @@
           <span class="quokka-nose"></span>
         </span>
       </div>
+
       <h4>{{ achievement.name }}</h4>
       <strong>{{ achievement.quokka }}</strong>
       <p>{{ achievement.description }}</p>
+
       <span class="achievement-status">
         {% if achievement.earned %}
         Earned
@@ -95,9 +101,12 @@
     {% endfor %}
   </div>
 </section>
+{% endblock %}
 
+{% block extra_js %}
 <script>
   const xpProgressBar = document.getElementById("xpProgressBar");
+
   if (xpProgressBar) {
     const xpPercent = xpProgressBar.dataset.xpPercent || 0;
     xpProgressBar.style.width = `${xpPercent}%`;
