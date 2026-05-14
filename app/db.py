@@ -35,7 +35,7 @@ def get_all_quizzes():
 
 
 def add_sample_quizzes():
-    if Quiz.query.count() >= 30:
+    if Quiz.query.count() >= 50:
         return
 
     science_questions = [
@@ -370,6 +370,89 @@ def add_sample_quizzes():
         },
     ]
 
+    biology_questions = [
+        {
+            "question": "What is the powerhouse of the cell?",
+            "selection_a": "Nucleus",
+            "selection_b": "Ribosome",
+            "selection_c": "Mitochondria",
+            "selection_d": "Endoplasmic Reticulum",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which molecule carries genetic information?",
+            "selection_a": "Protein",
+            "selection_b": "DNA",
+            "selection_c": "Carbohydrate",
+            "selection_d": "Lipid",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the process by which plants make their own food?",
+            "selection_a": "Respiration",
+            "selection_b": "Photosynthesis",
+            "selection_c": "Transpiration",
+            "selection_d": "Fermentation",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which organelle is responsible for protein synthesis?",
+            "selection_a": "Golgi apparatus",
+            "selection_b": "Lysosome",
+            "selection_c": "Ribosome",
+            "selection_d": "Vacuole",
+            "correct_answer": "C",
+        },
+        {
+            "question": "What is the basic unit of life?",
+            "selection_a": "Atom",
+            "selection_b": "Molecule",
+            "selection_c": "Cell",
+            "selection_d": "Tissue",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which blood cells are responsible for fighting infections?",
+            "selection_a": "Red blood cells",
+            "selection_b": "White blood cells",
+            "selection_c": "Platelets",
+            "selection_d": "Plasma",
+            "correct_answer": "B",
+        },
+        {
+            "question": "What is the process of cell division in somatic cells called?",
+            "selection_a": "Meiosis",
+            "selection_b": "Mitosis",
+            "selection_c": "Binary fission",
+            "selection_d": "Budding",
+            "correct_answer": "B",
+        },
+        {
+            "question": "Which vitamin is produced by the skin when exposed to sunlight?",
+            "selection_a": "Vitamin A",
+            "selection_b": "Vitamin B",
+            "selection_c": "Vitamin C",
+            "selection_d": "Vitamin D",
+            "correct_answer": "D",
+        },
+        {
+            "question": "What is the largest organ in the human body?",
+            "selection_a": "Heart",
+            "selection_b": "Liver",
+            "selection_c": "Skin",
+            "selection_d": "Brain",
+            "correct_answer": "C",
+        },
+        {
+            "question": "Which type of blood vessel carries blood away from the heart?",
+            "selection_a": "Vein",
+            "selection_b": "Artery",
+            "selection_c": "Capillary",
+            "selection_d": "Venule",
+            "correct_answer": "B",
+        },
+    ]
+
     for q in science_questions:
         db.session.add(Quiz(category="Science", **q))
     for q in programming_questions:
@@ -378,6 +461,8 @@ def add_sample_quizzes():
         db.session.add(Quiz(category="Math", **q))
     for q in geography_questions:
         db.session.add(Quiz(category="Geography", **q))
+    for q in biology_questions:
+        db.session.add(Quiz(category="Biology", **q))
 
     db.session.commit()
 
