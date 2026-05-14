@@ -32,6 +32,10 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
 
+    from .seed import seed_command, reset_db_command
+    app.cli.add_command(seed_command)
+    app.cli.add_command(reset_db_command)
+
     from .db import find_registered_user_by_id
 
     @login_manager.user_loader
