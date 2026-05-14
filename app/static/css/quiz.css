@@ -70,7 +70,7 @@
 }
 
 .category-btn[data-category="Science"].active {
-  background: #ff8c66;
+  background: #66c4ff;
   color: white;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .category-btn[data-category="Math"].active {
-  background: #ff8c66;
+  background: #6669ff;
   color: white;
 }
 
@@ -97,7 +97,7 @@
 }
 
 .category-btn[data-category="Geography"].active {
-  background: #ff8c66;
+  background: #19ce8f;
   color: white;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .category-btn[data-category="Biology"].active {
-  background: #ff8c66;
+  background: #d720e8;
   color: white;
 }
 
