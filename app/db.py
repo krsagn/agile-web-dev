@@ -289,6 +289,8 @@ def _make_programming_questions():
         ("What is an off-by-one error?", "A boundary counting mistake", ["A missing server", "A broken monitor", "A database index only", "A hardware fault"]),
         ("What is a parameter in a function?", "Input variable for the function", ["Output file only", "Database row", "CSS colour", "Network address"]),
         ("What is a return value?", "The output sent back by a function", ["A password", "A loop name", "A database index", "A web browser"]),
+        ("Which HTML attribute specifies the URL of a link?", "href", ["src", "alt", "title", "id"]),
+        ("Which CSS property controls the font size of text?", "font-size", ["text-size", "font-style", "font-weight", "letter-spacing"]),
     ]
     questions.extend(programming_facts)
     return [_make_question(question, correct, wrongs, index) for index, (question, correct, wrongs) in enumerate(questions[:100])]
@@ -612,6 +614,9 @@ def _make_biology_questions():
         ("Which part of the ear helps with balance?", "Semicircular canals", ["Eardrum", "Cochlea only", "Ear canal", "Hammer bone only"]),
         ("What type of joint is the shoulder?", "Ball-and-socket joint", ["Hinge joint", "Fixed joint", "Pivot joint", "Gliding joint only"]),
         ("What type of joint is the elbow?", "Hinge joint", ["Ball-and-socket joint", "Fixed joint", "Saddle joint", "Immovable joint"]),
+        ("What is the process by which plants lose water vapor through leaves?", "Transpiration", ["Respiration", "Photosynthesis", "Germination", "Osmosis"]),
+        ("Which macromolecule is the main source of energy for cells?", "Carbohydrate", ["Protein", "Lipid", "Nucleic acid", "Vitamin"]),
+        ("What is the term for blood vessels that carry blood to the heart?", "Veins", ["Arteries", "Capillaries", "Venules", "Aorta"]),
     ]
     return [_make_question(question, correct, wrongs, index) for index, (question, correct, wrongs) in enumerate(biology_facts[:100])]
 
