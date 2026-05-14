@@ -161,6 +161,7 @@ def _achievement_unlocked(key, user, result, correct_answers):
         "code_master": category == "programming" and is_perfect,
         "math_genius": category == "math" and is_perfect,
         "geography_ace": category == "geography" and is_perfect,
+        "biology_ace": category == "biology" and is_perfect,
         "hundred_correct": correct_answers >= 100,
     }
 
