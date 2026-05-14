@@ -13,9 +13,7 @@ from flask import (
     jsonify,
 )
 from flask_login import current_user, login_required, login_user, logout_user
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
@@ -31,12 +29,16 @@ from .db import (
 )
 from .models import RegisteredUser, UserAchievement
 
-
 main = Blueprint("main", __name__)
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
 LOCAL_TZ = ZoneInfo("Australia/Perth")
+
+DAILY_QUIZ_COMPLETED_MESSAGE = (
+    "You have already completed your quiz for today. "
+    "Come back tomorrow for a new quiz."
+)
 
 
 def _local_today_bounds_utc():
@@ -60,15 +62,11 @@ def _local_today_bounds_utc():
 def _user_completed_quiz_today(user_id):
     start_utc, end_utc = _local_today_bounds_utc()
 
-    existing_result = (
-        QuizResult.query
-        .filter(
-            QuizResult.user_id == user_id,
-            QuizResult.completed_at >= start_utc,
-            QuizResult.completed_at < end_utc,
-        )
-        .first()
-    )
+    existing_result = QuizResult.query.filter(
+        QuizResult.user_id == user_id,
+        QuizResult.completed_at >= start_utc,
+        QuizResult.completed_at < end_utc,
+    ).first()
 
     return existing_result is not None
 
@@ -141,15 +139,9 @@ def _achievement_unlocked(key, user, result, correct_answers):
 
 
 def _unlock_achievements(user, result):
-    earned_keys = {
-        achievement.achievement_key
-        for achievement in user.achievements
-    }
+    earned_keys = {achievement.achievement_key for achievement in user.achievements}
 
-    correct_answers = sum(
-        quiz_result.score
-        for quiz_result in user.quiz_results
-    )
+    correct_answers = sum(quiz_result.score for quiz_result in user.quiz_results)
 
     newly_unlocked = []
 
@@ -309,11 +301,7 @@ def terms():
 def quiz():
     completed_today = _user_completed_quiz_today(current_user.id)
 
-    quiz_message = (
-        "You have already completed today's quiz. Come back tomorrow."
-        if completed_today
-        else None
-    )
+    quiz_message = DAILY_QUIZ_COMPLETED_MESSAGE if completed_today else None
 
     return render_template(
         "quiz.html",
@@ -333,16 +321,37 @@ def history():
     return render_template("history.html")
 
 
+@main.route("/api/quiz-status")
+@login_required
+def quiz_status():
+    completed_today = _user_completed_quiz_today(current_user.id)
+
+    return jsonify(
+        {
+            "success": True,
+            "completed_today": completed_today,
+            "message": (
+                DAILY_QUIZ_COMPLETED_MESSAGE
+                if completed_today
+                else "You can complete today's quiz."
+            ),
+        }
+    )
+
+
 @main.route("/api/quizzes")
 @login_required
 def get_quizzes():
     if _user_completed_quiz_today(current_user.id):
-        return jsonify(
-            {
-                "success": False,
-                "message": "You have already completed today's quiz.",
-            }
-        ), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+                }
+            ),
+            403,
+        )
 
     add_sample_quizzes()
 
@@ -377,12 +386,15 @@ def get_quizzes():
 @login_required
 def submit_quiz():
     if _user_completed_quiz_today(current_user.id):
-        return jsonify(
-            {
-                "success": False,
-                "message": "You have already completed today's quiz.",
-            }
-        ), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": DAILY_QUIZ_COMPLETED_MESSAGE,
+                }
+            ),
+            403,
+        )
 
     data = request.get_json(silent=True) or {}
 
@@ -396,12 +408,15 @@ def submit_quiz():
         quizzes = get_all_quizzes()
 
     if not quizzes:
-        return jsonify(
-            {
-                "success": False,
-                "message": "No quizzes found.",
-            }
-        ), 404
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "No quizzes found.",
+                }
+            ),
+            404,
+        )
 
     correct_count = 0
     results = []
@@ -429,8 +444,6 @@ def submit_quiz():
                 },
             }
         )
-
-    newly_unlocked = []
 
     result = QuizResult(
         user_id=current_user.id,
@@ -484,8 +497,8 @@ def profile():
     current_level_xp = XP_PER_LEVEL.get(user.level, 0)
     level_span = max(next_level_xp - current_level_xp, 1)
 
-    best_score = max((r.score for r in user.quiz_results), default=0)
-    correct_answers = sum(r.score for r in user.quiz_results)
+    best_score = max((result.score for result in user.quiz_results), default=0)
+    correct_answers = sum(result.score for result in user.quiz_results)
 
     profile_data = {
         "full_name": f"{user.first_name} {user.last_name}",
@@ -507,13 +520,108 @@ def profile():
     }
 
     achievements = _achievement_cards_for(user)
-    recent_history = session.get("quiz_results")
 
     return render_template(
         "userProfile.html",
         profile=profile_data,
         achievements=achievements,
-        recent_history=recent_history,
+    )
+
+
+@main.route("/users")
+@login_required
+def search_users_page():
+    return render_template("userSearch.html")
+
+
+@main.route("/api/users/search")
+@login_required
+def search_registered_users():
+    search_query = request.args.get("q", "").strip()
+
+    if len(search_query) < 2:
+        return jsonify(
+            {
+                "success": True,
+                "users": [],
+            }
+        )
+
+    search_pattern = f"%{search_query}%"
+
+    users = (
+        RegisteredUser.query.filter(
+            or_(
+                RegisteredUser.username.ilike(search_pattern),
+                RegisteredUser.first_name.ilike(search_pattern),
+                RegisteredUser.last_name.ilike(search_pattern),
+            )
+        )
+        .order_by(RegisteredUser.username.asc())
+        .limit(10)
+        .all()
+    )
+
+    user_list = []
+
+    for user in users:
+        user_list.append(
+            {
+                "username": user.username,
+                "full_name": f"{user.first_name} {user.last_name}",
+                "level": user.level,
+                "title": LEVEL_TITLES.get(user.level, "Quokka Legend"),
+                "xp": user.xp,
+                "streak": user.streak,
+                "profile_url": url_for(
+                    "main.public_user_profile",
+                    username=user.username,
+                ),
+                "is_current_user": user.id == current_user.id,
+            }
+        )
+
+    return jsonify(
+        {
+            "success": True,
+            "users": user_list,
+        }
+    )
+
+
+@main.route("/users/<username>")
+@login_required
+def public_user_profile(username):
+    user = RegisteredUser.query.filter_by(username=username).first_or_404()
+
+    best_score = max((result.score for result in user.quiz_results), default=0)
+    correct_answers = sum(result.score for result in user.quiz_results)
+    quiz_count = len(user.quiz_results)
+
+    profile_data = {
+        "full_name": f"{user.first_name} {user.last_name}",
+        "username": user.username,
+        "level": user.level,
+        "title": LEVEL_TITLES.get(user.level, "Quokka Legend"),
+        "xp": user.xp,
+        "streak": user.streak,
+        "quiz_count": quiz_count,
+        "best_score": best_score,
+        "correct_answers": correct_answers,
+        "is_current_user": user.id == current_user.id,
+    }
+
+    recent_results = (
+        QuizResult.query.filter_by(user_id=user.id)
+        .order_by(QuizResult.completed_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template(
+        "publicUserProfile.html",
+        profile=profile_data,
+        recent_results=recent_results,
     )
 
 
@@ -536,8 +644,7 @@ def get_quiz_results():
 @login_required
 def get_history():
     results = (
-        QuizResult.query
-        .filter_by(user_id=current_user.id)
+        QuizResult.query.filter_by(user_id=current_user.id)
         .order_by(QuizResult.completed_at.desc())
         .all()
     )
@@ -617,4 +724,3 @@ def get_leaderboard():
             "all_time": alltime_list,
         }
     )
-    

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/userProfile.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
     <div class="app-container">
@@ -22,26 +23,37 @@
                 </div>
 
                 <ul class="nav-links">
+
                     <li{% if active_page == 'profile' %} class="active"{% endif %}>
                         <a href="{{ url_for('main.profile') }}">
                             <i class="bi bi-person"></i>Profile
                         </a>
                     </li>
+
                     <li{% if active_page == 'leaderboard' %} class="active"{% endif %}>
                         <a href="{{ url_for('main.leaderboard') }}">
                             <i class="bi bi-trophy"></i>Leaderboard
                         </a>
                     </li>
+
                     <li{% if active_page == 'history' %} class="active"{% endif %}>
                         <a href="{{ url_for('main.history') }}">
                             <i class="bi bi-clock-history"></i>History
                         </a>
                     </li>
+
                     <li{% if active_page == 'quiz' %} class="active"{% endif %}>
                         <a href="{{ url_for('main.quiz') }}">
                             <i class="bi bi-patch-question"></i>Quiz
                         </a>
                     </li>
+
+                    <li{% if active_page == 'users' %} class="active"{% endif %}>
+                        <a href="{{ url_for('main.search_users_page') }}">
+                            <i class="bi bi-search"></i>Users
+                        </a>
+                    </li>
+
                     {% if current_user.is_authenticated %}
                     <li>
                         <a href="{{ url_for('main.logout') }}">
@@ -49,6 +61,7 @@
                         </a>
                     </li>
                     {% endif %}
+
                 </ul>
             </div>
 
@@ -56,6 +69,7 @@
                 <div class="profile-avatar-small">
                     <i class="bi bi-person-fill"></i>
                 </div>
+
                 <div class="profile-name-small">
                     {{ current_user.username if current_user.is_authenticated else '' }}
                 </div>
@@ -70,5 +84,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
+
 </body>
 </html>
