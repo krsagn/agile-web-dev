@@ -449,9 +449,14 @@ def get_quizzes():
     category = request.args.get("category")
 
     if category:
-        quizzes = Quiz.query.filter_by(category=category).all()
+        quizzes = (
+            Quiz.query.filter_by(category=category)
+            .order_by(func.random())
+            .limit(10)
+            .all()
+        )
     else:
-        quizzes = get_all_quizzes()
+        quizzes = Quiz.query.order_by(func.random()).limit(10).all()
 
     quiz_list = []
 
@@ -493,27 +498,41 @@ def submit_quiz():
     time_taken = data.get("time", 0)
     category = data.get("category")
 
-    if category:
-        quizzes = Quiz.query.filter_by(category=category).all()
-    else:
-        quizzes = get_all_quizzes()
+    question_ids = [int(qid) for qid in user_answers.keys() if str(qid).isdigit()]
+
+    if not question_ids:
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "No quiz questions submitted.",
+                }
+            ),
+            400,
+        )
+
+    quizzes = Quiz.query.filter(Quiz.question_id.in_(question_ids)).all()
 
     if not quizzes:
         return (
             jsonify(
                 {
                     "success": False,
-                    "message": "No quizzes found.",
+                    "message": "No quizzes found for the submitted questions.",
                 }
             ),
             404,
         )
 
+    quiz_map = {quiz.question_id: quiz for quiz in quizzes}
     correct_count = 0
     results = []
 
-    for quiz in quizzes:
-        question_id = quiz.question_id
+    for question_id in question_ids:
+        quiz = quiz_map.get(question_id)
+        if quiz is None:
+            continue
+
         user_answer = user_answers.get(str(question_id), None)
         is_correct = user_answer == quiz.correct_answer
 
