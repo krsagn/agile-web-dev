@@ -24,9 +24,9 @@ login_manager.login_view = "main.login"
 login_manager.login_message_category = "warning"
 
 
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     os.makedirs(app.instance_path, exist_ok=True)
 

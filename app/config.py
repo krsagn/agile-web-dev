@@ -11,3 +11,10 @@ class Config:
     RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
     RESEND_FROM = os.environ.get("RESEND_FROM", "Quokka Quiz <onboarding@resend.dev>")
     SCHEDULER_API_ENABLED = False
+
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+    RESEND_API_KEY = ""

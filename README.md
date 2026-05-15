@@ -127,16 +127,16 @@ The Flask development server will start at `http://127.0.0.1:5003`.
 
 ## Running the Tests
 
-There is currently no automated test suite checked into the repository.
+The project uses Python's built-in `unittest` framework. Tests run against an in-memory SQLite database via a dedicated `TestingConfig`, so they do not touch your dev database.
 
-When tests are added, run them from the project root after installing the project dependencies:
+From the project root, with dependencies installed:
 
 ```bash
-python -m pytest
+python -m unittest discover tests
 ```
 
-If `pytest` is not installed, install it in your active virtual environment first:
+Add `-v` for verbose output:
 
 ```bash
-pip install pytest
+python -m unittest discover tests -v
 ```
