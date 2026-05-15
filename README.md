@@ -29,6 +29,8 @@ The app includes several features to keep users engaged over time.
 
 **Leaderboards** - Users can compare scores on a global leaderboard.
 
+**Email notifications** - Users receive playful Resend-powered emails when they level up, unlock an achievement, or are about to lose a streak (sent daily at 8pm AWST to users with a streak of 2+ who haven't quizzed that day).
+
 ### UI and Branding Updates
 
 The project has been rebranded from Daily Quiz to Quokka across the visible app interface.
@@ -76,6 +78,24 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+```
+
+### Environment variables
+
+Create a `.env` file in the project root with the following keys:
+
+```
+SECRET_KEY=<a long random string>
+GOOGLE_CLIENT_ID=<your Google OAuth client ID>
+RESEND_API_KEY=<your Resend API key>
+```
+
+`RESEND_API_KEY` is required for email notifications (level-ups, achievements, streak reminders). Sign up at [resend.com](https://resend.com) for a free key. Without it the app still works — emails just won't send.
+
+To generate a `SECRET_KEY`:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 ### Apply database migrations

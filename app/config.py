@@ -8,3 +8,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(basedir, "..", "instance", "daily_quiz.sqlite3")
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+    RESEND_FROM = os.environ.get("RESEND_FROM", "Quokka Quiz <onboarding@resend.dev>")
+    SCHEDULER_API_ENABLED = False
