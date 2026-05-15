@@ -11,7 +11,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 
-from .config import Config
 from .models import db as sqlalchemy_db
 from .scheduler import scheduler
 
@@ -24,7 +23,7 @@ login_manager.login_view = "main.login"
 login_manager.login_message_category = "warning"
 
 
-def create_app(config_class=Config):
+def create_app(config_class):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
