@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from datetime import datetime, timezone, timedelta
@@ -21,6 +22,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import csrf
 from .constants import ACHIEVEMENTS, LEVEL_TITLES, XP_PER_LEVEL
+from .email import send_achievement_unlocked, send_level_up
+
+logger = logging.getLogger(__name__)
 from .db import (
     db,
     find_registered_user_by_id,
@@ -144,7 +148,9 @@ def _update_user_progress(user, correct_count):
 
     user.last_active = now_utc
     user.xp += correct_count * 10
+    prev_level = user.level
     user.level = _calculate_level(user.xp)
+    return user.level > prev_level
 
 
 def _achievement_unlocked(key, user, result, correct_answers):
@@ -192,6 +198,15 @@ def _unlock_achievements(user, result):
         newly_unlocked.append({"key": key, **definition})
 
     return newly_unlocked
+
+
+def _send_post_quiz_emails(user, newly_unlocked, leveled_up):
+    if not user.email:
+        return
+    if leveled_up:
+        send_level_up(user)
+    for achievement in newly_unlocked:
+        send_achievement_unlocked(user, achievement["key"])
 
 
 def _achievement_cards_for(user):
@@ -566,13 +581,15 @@ def submit_quiz():
 
     db.session.add(result)
 
-    _update_user_progress(current_user, correct_count)
+    leveled_up = _update_user_progress(current_user, correct_count)
 
     db.session.flush()
 
     newly_unlocked = _unlock_achievements(current_user, result)
 
     db.session.commit()
+
+    _send_post_quiz_emails(current_user, newly_unlocked, leveled_up)
 
     session["quiz_results"] = {
         "score": correct_count,

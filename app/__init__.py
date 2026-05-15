@@ -8,6 +8,7 @@ from flask_wtf.csrf import CSRFProtect
 
 from .config import Config
 from .models import db as sqlalchemy_db
+from .scheduler import scheduler
 
 load_dotenv()
 
@@ -31,6 +32,14 @@ def create_app():
 
     from .routes import main
     app.register_blueprint(main)
+
+    should_run_scheduler = (
+        os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+        or os.environ.get("RUN_SCHEDULER") == "1"
+    )
+    if should_run_scheduler:
+        scheduler.init_app(app)
+        scheduler.start()
 
     from .seed import seed_command, reset_db_command
     app.cli.add_command(seed_command)
