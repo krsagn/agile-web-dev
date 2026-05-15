@@ -1,6 +1,11 @@
+import logging
 import os
 
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.WARNING)
+logging.getLogger("app").setLevel(logging.INFO)
+logging.getLogger("apscheduler").setLevel(logging.INFO)
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -40,6 +45,9 @@ def create_app():
     if should_run_scheduler:
         scheduler.init_app(app)
         scheduler.start()
+        app.logger.info("Scheduler started — %d job(s) registered", len(scheduler.get_jobs()))
+    else:
+        app.logger.info("Scheduler skipped (WERKZEUG_RUN_MAIN/RUN_SCHEDULER not set)")
 
     from .seed import seed_command, reset_db_command
     app.cli.add_command(seed_command)
