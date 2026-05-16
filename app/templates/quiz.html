@@ -104,7 +104,7 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
     </div>
 
     <div class="quiz-footer">
-      <div class="timer-display" id="time-elapsed">Time: 20:00</div>
+      <div class="timer-display" id="time-elapsed">Time: 2:00</div>
       <div class="score-preview" id="score-preview">Answered: 0/10</div>
     </div>
   </div>
@@ -132,7 +132,7 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
     let quizData = [];
     let currentQuestion = 0;
     let userAnswers = {};
-    let quizTimeLimit = 10 * 60;
+    let quizTimeLimit = 2 * 60;
     let elapsedTime = 0;
     let timerInterval = null;
     let quizFinished = false;
