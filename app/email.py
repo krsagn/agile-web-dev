@@ -15,6 +15,8 @@ def _send(to: str, subject: str, html: str) -> None:
 
     def _task():
         with app.app_context():
+            if not app.config.get("RESEND_API_KEY"):
+                return
             try:
                 resend.api_key = app.config["RESEND_API_KEY"]
                 resend.Emails.send(
