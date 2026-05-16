@@ -3,22 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Account — Quokka</title>
+    <title>Create Account, Quokka</title>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
+
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/register.css') }}"
     />
   </head>
+
   <body>
     <main class="register-page">
       <div class="container-fluid px-3 px-lg-4 py-3 py-lg-4">
@@ -26,13 +30,17 @@
           <div class="row g-0 register-layout">
             <section class="col-12 col-lg-5 register-side-panel">
               <div class="register-side-inner">
-                <button class="btn p-0 border-0 panel-back" type="button" onclick="window.history.back()">
-                    <i class="bi bi-arrow-left"></i>
-                  </button>
+                <button
+                  class="btn p-0 border-0 panel-back"
+                  type="button"
+                  onclick="window.history.back()"
+                  aria-label="Go back"
+                >
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+
                 <div class="brand-stack text-center">
-                  <span class="brand-mark" aria-hidden="true">
-                    Q
-                  </span>
+                  <span class="brand-mark" aria-hidden="true">Q</span>
                   <span class="brand-name">Quokka</span>
                 </div>
 
@@ -61,16 +69,19 @@
                       <i class="bi bi-check-circle-fill"></i>
                       <span>Track daily quiz streaks</span>
                     </div>
+
                     <div class="benefit-item">
                       <i class="bi bi-check-circle-fill"></i>
                       <span>Save scores and progress</span>
                     </div>
+
                     <div class="benefit-item">
                       <i class="bi bi-check-circle-fill"></i>
                       <span>Compete on fresh daily boards</span>
                     </div>
                   </div>
                 </div>
+
                 <div class="register-quokka-peek" aria-hidden="true">
                   <img
                     src="{{ url_for('static', filename='img/quokka-register-adventure.png') }}"
@@ -110,15 +121,30 @@
                     {% endif %}
                   {% endwith %}
 
-                  <form action="{{ url_for('main.register') }}" method="post" class="register-form" id="registerForm">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <form
+                    action="{{ url_for('main.register') }}"
+                    method="post"
+                    class="register-form"
+                    id="registerForm"
+                    novalidate
+                  >
+                    <input
+                      type="hidden"
+                      name="csrf_token"
+                      value="{{ csrf_token() }}"
+                    />
+
                     <div class="row g-3">
                       <div class="col-12 col-md-6">
-                        <label class="form-label" for="firstName">First name</label>
+                        <label class="form-label" for="firstName">
+                          First name
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-person"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="firstName"
@@ -129,14 +155,22 @@
                             required
                           />
                         </div>
+
+                        <div class="form-text text-muted" id="firstNameStatusText">
+                          Enter your first name.
+                        </div>
                       </div>
 
                       <div class="col-12 col-md-6">
-                        <label class="form-label" for="lastName">Last name</label>
+                        <label class="form-label" for="lastName">
+                          Last name
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-person"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="lastName"
@@ -147,14 +181,22 @@
                             required
                           />
                         </div>
+
+                        <div class="form-text text-muted" id="lastNameStatusText">
+                          Enter your last name.
+                        </div>
                       </div>
 
                       <div class="col-12">
-                        <label class="form-label" for="registerEmail">Email address</label>
+                        <label class="form-label" for="registerEmail">
+                          Email address
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-envelope"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="registerEmail"
@@ -165,14 +207,22 @@
                             required
                           />
                         </div>
+
+                        <div class="form-text text-muted" id="emailStatusText">
+                          Enter a valid email address.
+                        </div>
                       </div>
 
                       <div class="col-12">
-                        <label class="form-label" for="registerUsername">Username</label>
+                        <label class="form-label" for="registerUsername">
+                          Username
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-at"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="registerUsername"
@@ -183,14 +233,22 @@
                             required
                           />
                         </div>
+
+                        <div class="form-text text-muted" id="usernameStatusText">
+                          Type at least 2 characters.
+                        </div>
                       </div>
 
                       <div class="col-12 col-md-6">
-                        <label class="form-label" for="registerPassword">Password</label>
+                        <label class="form-label" for="registerPassword">
+                          Password
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-lock"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="registerPassword"
@@ -200,6 +258,7 @@
                             autocomplete="new-password"
                             required
                           />
+
                           <button
                             class="btn password-toggle"
                             type="button"
@@ -209,14 +268,32 @@
                             <i class="bi bi-eye"></i>
                           </button>
                         </div>
+
+                        <div class="mt-2">
+                          <div class="progress" style="height: 8px;">
+                            <div
+                              class="progress-bar"
+                              id="passwordStrengthBar"
+                              style="width: 0%;"
+                            ></div>
+                          </div>
+
+                          <div class="form-text text-muted" id="passwordStrengthText">
+                            Enter a password to check strength.
+                          </div>
+                        </div>
                       </div>
 
                       <div class="col-12 col-md-6">
-                        <label class="form-label" for="confirmPassword">Confirm password</label>
+                        <label class="form-label" for="confirmPassword">
+                          Confirm password
+                        </label>
+
                         <div class="input-group input-shell">
                           <span class="input-group-text">
                             <i class="bi bi-shield-lock"></i>
                           </span>
+
                           <input
                             class="form-control"
                             id="confirmPassword"
@@ -226,6 +303,7 @@
                             autocomplete="new-password"
                             required
                           />
+
                           <button
                             class="btn password-toggle"
                             type="button"
@@ -234,6 +312,10 @@
                           >
                             <i class="bi bi-eye"></i>
                           </button>
+                        </div>
+
+                        <div class="form-text text-muted" id="passwordMatchText">
+                          Confirm your password.
                         </div>
                       </div>
                     </div>
@@ -255,6 +337,7 @@
                           disabled
                           required
                         />
+
                         <label class="form-check-label" for="termsAccepted">
                           I agree to the
                           <a
@@ -267,7 +350,16 @@
                         </label>
                       </div>
 
-                      <button class="btn submit-btn w-100" id="createAccountButton" type="submit" disabled>
+                      <div class="form-text text-muted" id="termsStatusText">
+                        Read and accept the terms to create your account.
+                      </div>
+
+                      <button
+                        class="btn submit-btn w-100"
+                        id="createAccountButton"
+                        type="submit"
+                        disabled
+                      >
                         Create Account
                       </button>
                     </div>
@@ -321,7 +413,8 @@
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
-    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </body>
 </html>
