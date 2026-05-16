@@ -239,7 +239,7 @@ def test():
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("main.profile"))
+        return redirect(url_for("main.quiz"))
 
     if request.method == "POST":
         identifier = request.form.get("identifier", "").strip()
@@ -264,7 +264,7 @@ def login():
         if next_page and next_page.startswith("/") and not next_page.startswith("//"):
             return redirect(next_page)
 
-        return redirect(url_for("main.profile"))
+        return redirect(url_for("main.quiz"))
 
     return render_template("login.html", **_auth_template_context())
 
@@ -327,7 +327,7 @@ def google_auth():
 
     login_user(user)
     flash("Logged in with Google successfully.", "success")
-    return redirect(url_for("main.profile"))
+    return redirect(url_for("main.quiz"))
 
 
 @main.route("/logout")
@@ -405,6 +405,20 @@ def terms():
 @main.route("/quiz")
 @login_required
 def quiz():
+    completed_today = _user_completed_quiz_today(current_user.id)
+
+    quiz_message = DAILY_QUIZ_COMPLETED_MESSAGE if completed_today else None
+
+    return render_template(
+        "quiz_welcome.html",
+        completed_today=completed_today,
+        quiz_message=quiz_message,
+    )
+
+
+@main.route("/quiz/categories")
+@login_required
+def quiz_categories():
     completed_today = _user_completed_quiz_today(current_user.id)
 
     quiz_message = DAILY_QUIZ_COMPLETED_MESSAGE if completed_today else None
