@@ -4,10 +4,26 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
+    """Shared settings inherited by every environment-specific config."""
+
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+    RESEND_FROM = os.environ.get("RESEND_FROM", "Quokka Quiz <onboarding@resend.dev>")
+    SCHEDULER_API_ENABLED = False
+
+
+class DevelopmentConfig(Config):
+    """Local-dev configuration, used by `python run.py`."""
+
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(basedir, "..", "instance", "daily_quiz.sqlite3")
     RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-    RESEND_FROM = os.environ.get("RESEND_FROM", "Quokka Quiz <onboarding@resend.dev>")
-    SCHEDULER_API_ENABLED = False
+
+
+class TestingConfig(Config):
+    """Used by the unit-test suite, in-memory DB, CSRF off, no real emails."""
+
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+    RESEND_API_KEY = ""
