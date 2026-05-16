@@ -86,11 +86,11 @@ class SeleniumTests(unittest.TestCase):
         return webdriver.Chrome(options=options)
 
     def setUp(self):
-        """Clean DB state and fresh Chrome driver before every test.
+        """Clean DB state and start a fresh Chrome driver before every test.
 
-        Driver creation is last so that any DB setup failure fails cheaply
-        without leaking a Chrome process — unittest skips tearDown if setUp
-        raises, so an early-launched driver would be orphaned.
+        We create the driver last. If the DB setup blows up, unittest won't
+        run tearDown, so an early-launched Chrome would just sit there
+        orphaned. Doing the DB work first means a setup failure costs nothing.
         """
         UserAchievement.query.delete()
         QuizResult.query.delete()
@@ -124,9 +124,9 @@ class SeleniumTests(unittest.TestCase):
         WebDriverWait(self.driver, 10).until(EC.url_contains("/profile"))
 
     # ------------------------------------------------------------------
-    # Test 1 — Registration
-    # Covers: user data persisted between sessions, HTML form handling,
-    #         CSRF token flowing through the registration template.
+    # Test 1: Registration
+    # Covers user data persisted between sessions, HTML form handling,
+    # and CSRF tokens flowing through the registration template.
     # ------------------------------------------------------------------
 
     def test_01_register_redirects_to_login_with_success_message(self):
@@ -139,10 +139,11 @@ class SeleniumTests(unittest.TestCase):
         self.driver.find_element(By.ID, "registerPassword").send_keys("password123")
         self.driver.find_element(By.ID, "confirmPassword").send_keys("password123")
 
-        # The terms checkbox and submit button are disabled until the user reads
-        # the Terms popup (a separate browser window). We bypass that UI flow
-        # via JavaScript, setting the hidden field the server checks and enabling
-        # the submit button — exactly what the popup's postMessage callback does.
+        # The terms checkbox and submit button stay disabled until the user
+        # reads the Terms popup in a separate browser window. We skip that UI
+        # flow with JavaScript, setting the hidden field the server checks
+        # and enabling the submit button. That's exactly what the popup's
+        # postMessage callback would do.
         self.driver.execute_script("""
             document.getElementById('termsReadStatus').value = 'yes';
             document.getElementById('termsAccepted').disabled = false;
@@ -157,25 +158,27 @@ class SeleniumTests(unittest.TestCase):
         alert = self.driver.find_element(By.CSS_SELECTOR, ".alert.alert-success")
         self.assertIn("Account created successfully", alert.text)
 
-        # Verify the rubric line directly: the new user is persisted in the DB,
-        # not just that the server flashed a success message.
+        # Verify the rubric line directly. The new user should actually be
+        # in the DB, not just confirmed by a flash message on the page.
         persisted = RegisteredUser.query.filter_by(username="newuser").first()
         self.assertIsNotNone(persisted)
         self.assertEqual(persisted.email, "new@example.com")
 
     # ------------------------------------------------------------------
-    # Test 2 — Login then logout
-    # Covers: "Login and logout" explicit key requirement; session clears
-    #         so a protected page bounces back to /login afterwards.
+    # Test 2: Login then logout
+    # Covers the "Login and logout" key requirement. Also checks the
+    # session is cleared, so a protected page bounces back to /login
+    # afterwards.
     # ------------------------------------------------------------------
 
     def test_02_login_and_logout(self):
         self._login()
         self.assertIn("/profile", self.driver.current_url)
 
-        # Wait for the profile page to fully render (and consume the login-success
-        # flash) before clicking logout, so the flash doesn't survive in the
-        # session cookie and bleed through to the post-logout /login page.
+        # Wait for the profile page to fully render before clicking logout.
+        # This gives the page a chance to consume the login-success flash,
+        # so it doesn't survive in the session cookie and bleed through to
+        # the post-logout /login page.
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "h1.page-title"))
         )
@@ -185,8 +188,8 @@ class SeleniumTests(unittest.TestCase):
         WebDriverWait(self.driver, 10).until(EC.url_contains("/login"))
 
         # The profile page doesn't consume flashed messages, so both the
-        # login-success and logout-success flashes may appear here together.
-        # Use XPath to find the alert that specifically contains the logout text.
+        # login-success and logout-success flashes can appear here together.
+        # Use XPath to grab the alert that actually mentions logout.
         logout_alert = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((
                 By.XPATH,
@@ -200,9 +203,9 @@ class SeleniumTests(unittest.TestCase):
         WebDriverWait(self.driver, 10).until(EC.url_contains("/login"))
 
     # ------------------------------------------------------------------
-    # Test 3 — Complete quiz end-to-end
-    # Covers: AJAX/JS, non-trivial Flask data manipulation, DB write
-    #         persistence (quiz result saved and readable on results page).
+    # Test 3: Complete quiz end-to-end
+    # Covers AJAX/JS, non-trivial Flask data manipulation, and DB write
+    # persistence by checking the quiz result actually saves.
     # ------------------------------------------------------------------
 
     def test_03_complete_quiz_shows_results_page(self):
@@ -215,18 +218,20 @@ class SeleniumTests(unittest.TestCase):
         ).click()
         self.driver.find_element(By.ID, "confirm-category-btn").click()
 
-        # The quiz content div is hidden (d-none) until the JS fetch returns
+        # The quiz content div is hidden with d-none until the JS fetch
+        # returns.
         WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located((By.ID, "quiz-content"))
         )
 
-        # Answer all 10 questions by always selecting option A, then clicking Next.
-        # On the final question the button label becomes "Finish Quiz" but the
-        # element ID stays "next-btn", so the loop handles both cases uniformly.
-        # After each Next click (except the last) we wait for the question
-        # counter to advance — this is a deterministic signal that the JS click
-        # handler has finished updating state, preventing a race where the
-        # next iteration's option-A click fires before the new question loads.
+        # Answer all 10 questions by always picking option A, then clicking
+        # Next. On the final question the button label becomes "Finish Quiz"
+        # but the element ID stays "next-btn", so the loop handles both
+        # cases the same way. After each Next click (except the last) we
+        # wait for the question counter to advance. That's a reliable signal
+        # the JS click handler has finished updating state, which avoids a
+        # race where the next iteration's option-A click fires before the
+        # new question has loaded.
         for i in range(10):
             WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable(
@@ -241,13 +246,14 @@ class SeleniumTests(unittest.TestCase):
                     )
                 )
 
-        # Finishing the quiz POSTs to /api/submit-quiz then JS redirects to /results
+        # Finishing the quiz POSTs to /api/submit-quiz, then the JS
+        # redirects us to /results.
         WebDriverWait(self.driver, 10).until(EC.url_contains("/results"))
 
-        # Verify the rubric line directly: a QuizResult row was actually written
-        # to the DB. The score-display element is in the template's static HTML
-        # (initial text "0"), so its mere presence wouldn't prove the data path;
-        # checking the DB row does.
+        # Verify the rubric line directly. A QuizResult row should actually
+        # be in the DB. The score-display element is in the template's
+        # static HTML with an initial text of "0", so its mere presence
+        # wouldn't prove the data path. Checking the DB row does.
         db.session.expire_all()
         result = QuizResult.query.filter_by(user_id=self._user_id).first()
         self.assertIsNotNone(result)
@@ -255,9 +261,10 @@ class SeleniumTests(unittest.TestCase):
         self.assertEqual(result.category, "Science")
 
     # ------------------------------------------------------------------
-    # Test 4 — View another user's public profile
-    # Covers: "Users can view other users' data" explicit key requirement;
-    #         public profile page, login-required guard, DB read across users.
+    # Test 4: View another user's public profile
+    # Covers the "Users can view other users' data" key requirement.
+    # Also exercises the public profile page, login-required guard, and
+    # a DB read across users.
     # ------------------------------------------------------------------
 
     def test_04_view_other_user_profile(self):
@@ -289,10 +296,10 @@ class SeleniumTests(unittest.TestCase):
         self.assertIn(_OTHER_USER["username"], username_el.text)
 
     # ------------------------------------------------------------------
-    # Test 5 — CSRF protection rejects requests without a valid token
-    # Covers: "CSRF tokens on ALL forms" explicit security rubric line.
-    #         Toggles CSRF on for this test only; the rest of the suite
-    #         inherits WTF_CSRF_ENABLED=False from TestingConfig for speed.
+    # Test 5: CSRF protection rejects requests without a valid token
+    # Covers the "CSRF tokens on ALL forms" security rubric line.
+    # We turn CSRF on just for this test. The rest of the suite inherits
+    # WTF_CSRF_ENABLED=False from TestingConfig for speed.
     # ------------------------------------------------------------------
 
     def test_05_login_without_csrf_token_is_rejected(self):
@@ -300,8 +307,8 @@ class SeleniumTests(unittest.TestCase):
         try:
             self.driver.get(f"{BASE_URL}/login")
 
-            # Remove the hidden csrf_token input before submitting so the
-            # server receives a POST with no token at all
+            # Remove the hidden csrf_token input before submitting, so the
+            # server receives a POST with no token at all.
             self.driver.execute_script(
                 "document.querySelector(\"input[name='csrf_token']\").remove();"
             )
@@ -310,7 +317,7 @@ class SeleniumTests(unittest.TestCase):
             self.driver.find_element(By.ID, "password").send_keys(_TEST_USER["password"])
             self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
-            # Flask-WTF returns a 400 page that mentions the CSRF token
+            # Flask-WTF returns a 400 page that mentions the CSRF token.
             WebDriverWait(self.driver, 10).until(
                 lambda d: "CSRF" in d.page_source or "Bad Request" in d.page_source
             )

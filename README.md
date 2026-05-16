@@ -129,8 +129,8 @@ The Flask development server will start at `http://127.0.0.1:5003`.
 
 The project uses Python's built-in `unittest` framework and has two test suites:
 
-- **Unit tests** — fast tests that exercise models, helpers, and route logic against an in-memory SQLite database via a dedicated `TestingConfig`. They do not touch your dev database.
-- **Selenium tests** — end-to-end browser tests in [tests/test_selenium.py](tests/test_selenium.py) that drive a headless Chrome browser against a live Flask server running in a background thread.
+- **Unit tests** are fast tests that exercise models, helpers, and route logic against an in-memory SQLite database via a dedicated `TestingConfig`. They do not touch your dev database.
+- **Selenium tests** in [tests/test_selenium.py](tests/test_selenium.py) drive a headless Chrome browser against a live Flask server running in a background thread.
 
 ### Unit tests only
 
