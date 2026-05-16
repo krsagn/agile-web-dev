@@ -1,6 +1,5 @@
 :root {
-  --bg-left: #dbe6ff;
-  --bg-right: #f5deef;
+  --page-bg: #f8eedb;
   --shell-bg: rgba(255, 255, 255, 0.88);
   --panel-white: rgba(255, 255, 255, 0.93);
   --text-main: #25233f;
@@ -26,9 +25,7 @@ body {
   margin: 0;
   font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--text-main);
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.62), transparent 28%),
-    linear-gradient(115deg, var(--bg-left), var(--bg-right));
+  background: var(--page-bg);
 }
 
 .register-page {

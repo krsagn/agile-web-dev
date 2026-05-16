@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f5f5fc;
+  background: #f8eedb;
 }
 
 .app-container {
@@ -18,6 +18,23 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.app-container:has(.quiz-welcome) .sidebar {
+  animation: sidebar-slide-in 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes sidebar-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-42px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .logo-section {
@@ -125,6 +142,7 @@ body {
 .main-content {
   flex: 1;
   padding: 40px;
+  background: #f8eedb;
 }
 
 .page-title {
@@ -494,6 +512,12 @@ body {
     flex-direction: column;
   }
 
+  .app-container:has(.quiz-welcome) .sidebar {
+    width: 100%;
+    min-height: auto;
+    animation-name: sidebar-slide-down;
+  }
+
   .sidebar {
     width: 100%;
     min-height: auto;
@@ -510,6 +534,25 @@ body {
   .profile-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@keyframes sidebar-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-container:has(.quiz-welcome) .sidebar {
+    animation: none;
+    will-change: auto;
   }
 }
 

@@ -7,7 +7,21 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
 />
 {% endblock %} {% block content %}
 <div class="container py-4">
-  <section class="quiz-welcome">
+  <section class="quiz-welcome" id="quiz-welcome">
+    <div class="quiz-blob-backdrop" aria-hidden="true"></div>
+    <img
+      class="quiz-welcome-character{% if has_completed_today %} is-hidden{% endif %}"
+      src="{{ url_for('static', filename='img/quiz-welcome-glad.png') }}"
+      alt=""
+      aria-hidden="true"
+    />
+    <img
+      class="quiz-welcome-character{% if not has_completed_today %} is-hidden{% endif %}"
+      src="{{ url_for('static', filename='img/quiz-welcome-swoop.png') }}"
+      alt=""
+      aria-hidden="true"
+    />
+
     <div class="quiz-welcome-copy">
       <span class="quiz-kicker">Daily Quiz</span>
       <h1
@@ -47,10 +61,6 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
         <span>5</span>
         <small>Categories</small>
       </div>
-      <div class="welcome-stat">
-        <span>XP</span>
-        <small>Rewards</small>
-      </div>
     </div>
   </section>
 </div>
@@ -59,6 +69,69 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const heading = document.getElementById("quiz-welcome-heading");
+    const welcomeSection = document.getElementById("quiz-welcome");
+
+    if (welcomeSection) {
+      let currentX = 72;
+      let currentY = 34;
+      let targetX = 72;
+      let targetY = 34;
+      let idleTimer = null;
+      let isPointerIdle = true;
+
+      const clamp = function (value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      };
+
+      const setRandomIdleTarget = function () {
+        if (!isPointerIdle) {
+          return;
+        }
+
+        targetX = clamp(currentX + (Math.random() * 24 - 12), 16, 84);
+        targetY = clamp(currentY + (Math.random() * 20 - 10), 18, 82);
+        idleTimer = window.setTimeout(setRandomIdleTarget, 1800);
+      };
+
+      const scheduleIdleWander = function () {
+        isPointerIdle = false;
+        window.clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(function () {
+          isPointerIdle = true;
+          setRandomIdleTarget();
+        }, 700);
+      };
+
+      const updateBlobPosition = function (event) {
+        const bounds = welcomeSection.getBoundingClientRect();
+        const x = clamp(((event.clientX - bounds.left) / bounds.width) * 100, 12, 88);
+        const y = clamp(((event.clientY - bounds.top) / bounds.height) * 100, 14, 86);
+
+        targetX = x;
+        targetY = y;
+        scheduleIdleWander();
+      };
+
+      const animateBlob = function () {
+        currentX += (targetX - currentX) * 0.035;
+        currentY += (targetY - currentY) * 0.035;
+
+        welcomeSection.style.setProperty("--blob-x", `${currentX}%`);
+        welcomeSection.style.setProperty("--blob-y", `${currentY}%`);
+
+        window.requestAnimationFrame(animateBlob);
+      };
+
+      welcomeSection.addEventListener("pointermove", updateBlobPosition);
+      welcomeSection.addEventListener("pointerleave", function () {
+        targetX = 72;
+        targetY = 34;
+        scheduleIdleWander();
+      });
+
+      animateBlob();
+      setRandomIdleTarget();
+    }
 
     if (!heading) {
       return;

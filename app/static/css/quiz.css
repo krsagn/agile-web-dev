@@ -1,5 +1,9 @@
 /* Quiz Page Styles - Matching Leaderboard Design */
 
+.main-content:has(.quiz-welcome) {
+  background: #f8eedb;
+}
+
 /* Quiz Welcome */
 .quiz-welcome {
   min-height: calc(100vh - 160px);
@@ -7,6 +11,112 @@
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
   align-items: center;
   gap: 32px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  --blob-x: 72%;
+  --blob-y: 34%;
+  border-radius: 28px;
+  padding: 24px;
+}
+
+.quiz-blob-backdrop {
+  position: absolute;
+  width: min(56vw, 620px);
+  aspect-ratio: 1;
+  left: var(--blob-x);
+  top: var(--blob-y);
+  z-index: -1;
+  border-radius: 44% 56% 63% 37% / 42% 35% 65% 58%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 250, 202, 0.96), transparent 34%),
+    linear-gradient(135deg, rgba(255, 236, 139, 0.74), rgba(255, 252, 220, 0.52));
+  filter: blur(8px);
+  opacity: 0.78;
+  transform: translate(-50%, -50%) scale(1);
+  animation: welcome-blob-drift 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.quiz-welcome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 18% 82%, rgba(232, 246, 252, 0.85), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(255, 248, 225, 0.22));
+  pointer-events: none;
+}
+
+.quiz-welcome-copy,
+.quiz-welcome-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.quiz-welcome-character {
+  position: absolute;
+  right: clamp(-160px, -8vw, -48px);
+  bottom: clamp(-132px, -9vw, -68px);
+  z-index: 0;
+  width: min(54vw, 680px);
+  max-height: 88%;
+  object-fit: contain;
+  object-position: bottom right;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(4vw, 105vh, 0) rotate(-7deg) scale(0.94);
+  transform-origin: 70% 100%;
+  filter: drop-shadow(0 24px 34px rgba(45, 39, 87, 0.14));
+  animation: quiz-character-swoop 3.2s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+}
+
+.quiz-welcome-character.is-hidden {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .quiz-welcome-character {
+    z-index: 2;
+  }
+
+  .quiz-welcome-panel {
+    z-index: 1;
+  }
+}
+
+@keyframes welcome-blob-drift {
+  0% {
+    border-radius: 44% 56% 63% 37% / 42% 35% 65% 58%;
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.98);
+  }
+
+  50% {
+    border-radius: 61% 39% 45% 55% / 51% 58% 42% 49%;
+  }
+
+  100% {
+    border-radius: 38% 62% 55% 45% / 62% 41% 59% 38%;
+    transform: translate(-50%, -50%) rotate(8deg) scale(1.06);
+  }
+}
+
+@keyframes quiz-character-swoop {
+  0% {
+    opacity: 0;
+    transform: translate3d(4vw, 105vh, 0) rotate(-7deg) scale(0.94);
+  }
+
+  62% {
+    opacity: 1;
+    transform: translate3d(-1.2vw, -2.5vh, 0) rotate(2deg) scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
 }
 
 .quiz-welcome-copy {
@@ -465,10 +575,26 @@
     min-height: auto;
     grid-template-columns: 1fr;
     align-items: start;
+    padding: 16px;
   }
 
   .quiz-welcome h1 {
     font-size: 2.6rem;
+  }
+
+  .quiz-blob-backdrop {
+    width: min(86vw, 420px);
+  }
+
+  .quiz-welcome-character {
+    right: 50%;
+    bottom: -92px;
+    width: min(118vw, 520px);
+    max-height: none;
+    opacity: 0.78;
+    transform: translate3d(50%, 105vh, 0) rotate(-6deg) scale(0.94);
+    transform-origin: 50% 100%;
+    animation-name: quiz-character-swoop-mobile;
   }
 
   .quiz-welcome-panel {
@@ -497,5 +623,37 @@
     flex-direction: column;
     gap: 12px;
     text-align: center;
+  }
+}
+
+@keyframes quiz-character-swoop-mobile {
+  0% {
+    opacity: 0;
+    transform: translate3d(50%, 105vh, 0) rotate(-6deg) scale(0.94);
+  }
+
+  62% {
+    opacity: 0.78;
+    transform: translate3d(48%, -2vh, 0) rotate(2deg) scale(1.01);
+  }
+
+  100% {
+    opacity: 0.78;
+    transform: translate3d(50%, 0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-welcome-character {
+    opacity: 0.88;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 768px) {
+  .quiz-welcome-character {
+    opacity: 0.78;
+    transform: translate3d(50%, 0, 0) rotate(0deg) scale(1);
   }
 }
