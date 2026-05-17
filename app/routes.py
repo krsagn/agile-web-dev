@@ -619,6 +619,19 @@ def submit_quiz():
     )
 
 
+@main.route("/api/check-username")
+def check_username():
+    username = request.args.get("u", "").strip()
+
+    if len(username) < 2:
+        return jsonify({"available": False}), 400
+
+    taken = (
+        RegisteredUser.query.filter_by(username=username).first() is not None
+    )
+    return jsonify({"available": not taken})
+
+
 @main.route("/profile")
 @login_required
 def profile():
@@ -762,11 +775,13 @@ def public_user_profile(username):
 
 
 @main.route("/results")
+@login_required
 def results():
     return render_template("results.html")
 
 
 @main.route("/api/quiz-results")
+@login_required
 def get_quiz_results():
     quiz_results = session.get("quiz_results", None)
 

@@ -6,7 +6,7 @@ Quokka is a web app that gives users a quiz per day across a range of categories
 
 ### How It Works
 
-The user opens the app and is presented with "Today's Quiz". After answering the questions, they receive their score along with explanations for each answer. Progress is saved automatically.
+The user logs in (or registers) and is presented with "Today's Quiz". After answering the questions, they receive their score along with a per-question Answer Review. Progress is saved automatically.
 
 ### Categories
 
@@ -80,8 +80,8 @@ The current visual assets live in `app/static/img/`:
 
 ```bash
 # From the project root, create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -109,6 +109,20 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ```bash
 flask db upgrade
+```
+
+### Seed the database (optional)
+
+To populate the database with a handful of demo users, quiz results, and achievements (useful for poking around the leaderboard and profiles locally):
+
+```bash
+flask seed
+```
+
+To clear all user data without re-seeding:
+
+```bash
+flask reset-db
 ```
 
 ### Start the server

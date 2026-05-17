@@ -323,5 +323,18 @@ class SeleniumTests(unittest.TestCase):
             self.app.config["WTF_CSRF_ENABLED"] = False
 
 
+    # ------------------------------------------------------------------
+    # Test 6: Login-required pages redirect anonymous users to /login
+    # Covers the auth guard. Pure server-side redirect — no DB writes,
+    # no JS, no flash timing, so it's the cheapest way to add a sixth
+    # test above the rubric's 5-test floor.
+    # ------------------------------------------------------------------
+
+    def test_06_protected_page_redirects_anonymous_to_login(self):
+        self.driver.get(f"{BASE_URL}/quiz")
+        WebDriverWait(self.driver, 10).until(EC.url_contains("/login"))
+        self.assertIn("/login", self.driver.current_url)
+
+
 if __name__ == "__main__":
     unittest.main()
