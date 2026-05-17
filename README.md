@@ -10,12 +10,11 @@ The user opens the app and is presented with "Today's Quiz". After answering the
 
 ### Categories
 
-- Programming
-- General knowledge
-- Maths
-- Cybersecurity
-- Movies and TV
 - Science
+- Programming
+- Math
+- Geography
+- Biology
 
 ### Gamification
 
@@ -41,13 +40,21 @@ Recent login and registration page updates include:
 - A login page Quokka illustration that peeks from the bottom-right corner and gently reveals more of the character as the user scrolls.
 - A responsive grass floor layer on the login page that stays fixed to the bottom of the viewport and animates in after the login layout has been scrolled through.
 - A register page Quokka adventure illustration layered over the left side panel with the same soft entrance and idle bob animation style.
-- Responsive CSS breakpoints so the Quokka and grass artwork scale or crop cleanly on smaller screens.
+- A consistent warm `#f8eedb` page background across the app.
+- Animated Quokka artwork on the quiz welcome page, including separate welcome and completed-today states.
+- A quiz category page Quokka illustration that rises from the bottom of the main content area toward the category card.
+- A sidebar slide-in animation scoped to the quiz welcome page.
+- Profile page cards that ease in when the profile loads.
+- Responsive CSS breakpoints so the Quokka artwork and grass layer scale or crop cleanly on smaller screens.
 
 The current visual assets live in `app/static/img/`:
 
 - `quokka-login.png`
 - `quokka-grass-floor.png`
 - `quokka-register-adventure.png`
+- `quiz-welcome-glad.png`
+- `quiz-welcome-swoop.png`
+- `quiz-category-look.png`
 
 ---
 
@@ -112,16 +119,20 @@ python run.py
 
 The Flask development server will start at `http://127.0.0.1:5003`.
 
-| Route       | Description          |
-| ----------- | -------------------- |
-| `/`         | Home page            |
-| `/home`     | Test/reference page  |
-| `/login`    | Login page           |
-| `/register` | Registration page    |
-| `/terms`    | Terms page           |
-| `/quiz`     | Quiz page            |
-| `/profile`  | User profile page    |
-| `/results`  | Quiz results page    |
+| Route               | Description                  |
+| ------------------- | ---------------------------- |
+| `/`                 | Home page                    |
+| `/login`            | Login page                   |
+| `/register`         | Registration page            |
+| `/terms`            | Terms page                   |
+| `/quiz`             | Quiz welcome page            |
+| `/quiz/categories`  | Quiz category selection page |
+| `/profile`          | User profile page            |
+| `/history`          | Quiz history page            |
+| `/leaderboard`      | Leaderboard page             |
+| `/users`            | User search page             |
+| `/users/<username>` | Public user profile page     |
+| `/results`          | Quiz results page            |
 
 ---
 
