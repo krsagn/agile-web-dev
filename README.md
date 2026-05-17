@@ -6,16 +6,15 @@ Quokka is a web app that gives users a quiz per day across a range of categories
 
 ### How It Works
 
-The user opens the app and is presented with "Today's Quiz". After answering the questions, they receive their score along with explanations for each answer. Progress is saved automatically.
+The user logs in (or registers) and is presented with "Today's Quiz". After answering the questions, they receive their score along with a per-question Answer Review. Progress is saved automatically.
 
 ### Categories
 
-- Programming
-- General knowledge
-- Maths
-- Cybersecurity
-- Movies and TV
 - Science
+- Programming
+- Math
+- Geography
+- Biology
 
 ### Gamification
 
@@ -48,6 +47,9 @@ The current visual assets live in `app/static/img/`:
 - `quokka-login.png`
 - `quokka-grass-floor.png`
 - `quokka-register-adventure.png`
+- `quiz-welcome-glad.png`
+- `quiz-welcome-swoop.png`
+- `quiz-category-look.png`
 
 ---
 
@@ -73,8 +75,8 @@ The current visual assets live in `app/static/img/`:
 
 ```bash
 # From the project root, create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate
+python -m venv venv
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -104,6 +106,20 @@ python -c "import secrets; print(secrets.token_hex(32))"
 flask db upgrade
 ```
 
+### Seed the database (optional)
+
+To populate the database with a handful of demo users, quiz results, and achievements (useful for poking around the leaderboard and profiles locally):
+
+```bash
+flask seed
+```
+
+To clear all user data without re-seeding:
+
+```bash
+flask reset-db
+```
+
 ### Start the server
 
 ```bash
@@ -112,16 +128,19 @@ python run.py
 
 The Flask development server will start at `http://127.0.0.1:5003`.
 
-| Route       | Description          |
-| ----------- | -------------------- |
-| `/`         | Home page            |
-| `/home`     | Test/reference page  |
-| `/login`    | Login page           |
-| `/register` | Registration page    |
-| `/terms`    | Terms page           |
-| `/quiz`     | Quiz page            |
-| `/profile`  | User profile page    |
-| `/results`  | Quiz results page    |
+| Route                 | Description                                |
+| --------------------- | ------------------------------------------ |
+| `/`                   | Redirects to `/login`                      |
+| `/login`              | Login page                                 |
+| `/register`           | Registration page                          |
+| `/terms`              | Terms page                                 |
+| `/quiz`               | Today's quiz (category select + questions) |
+| `/results`            | Quiz results page                          |
+| `/profile`            | Logged-in user's profile                   |
+| `/users`              | User search                                |
+| `/users/<username>`   | Public profile for another user            |
+| `/leaderboard`        | Today and all-time leaderboards            |
+| `/history`            | Logged-in user's quiz history              |
 
 ---
 
