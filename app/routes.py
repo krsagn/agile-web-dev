@@ -231,11 +231,6 @@ def index():
     return redirect(url_for("main.login"))
 
 
-@main.route("/home")
-def test():
-    return render_template("test-page.html")
-
-
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:

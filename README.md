@@ -127,15 +127,37 @@ The Flask development server will start at `http://127.0.0.1:5003`.
 
 ## Running the Tests
 
-The project uses Python's built-in `unittest` framework. Tests run against an in-memory SQLite database via a dedicated `TestingConfig`, so they do not touch your dev database.
+The project uses Python's built-in `unittest` framework and has two test suites:
 
-From the project root, with dependencies installed:
+- **Unit tests** are fast tests that exercise models, helpers, and route logic against an in-memory SQLite database via a dedicated `TestingConfig`. They do not touch your dev database.
+- **Selenium tests** in [tests/test_selenium.py](tests/test_selenium.py) drive a headless Chrome browser against a live Flask server running in a background thread.
+
+### Unit tests only
+
+From the project root, with dependencies installed, skip the Selenium suite (for example, on a machine without Chrome installed) by excluding it explicitly:
 
 ```bash
-python -m unittest discover tests
+python -m unittest discover tests -p "test_[!s]*.py" -v
 ```
 
-Add `-v` for verbose output:
+### Selenium tests
+
+The Selenium suite requires:
+
+- Google Chrome installed locally.
+- A matching `chromedriver` available on your `PATH`. Recent versions of Selenium (4.6+) include Selenium Manager, which will download a compatible driver automatically the first time the suite runs, so no manual setup is normally required.
+
+Run the Selenium suite on its own with:
+
+```bash
+python -m unittest tests.test_selenium -v
+```
+
+The suite starts its own Flask server on `localhost:5001`, so make sure that port is free before running. Tests run headlessly by default.
+
+### Running everything
+
+To run the unit tests and the Selenium tests together:
 
 ```bash
 python -m unittest discover tests -v
