@@ -134,13 +134,7 @@ The project uses Python's built-in `unittest` framework and has two test suites:
 
 ### Unit tests only
 
-From the project root, with dependencies installed:
-
-```bash
-python -m unittest discover tests -p "test_*.py" -v
-```
-
-To skip the Selenium suite (for example, on a machine without Chrome installed), exclude it explicitly:
+From the project root, with dependencies installed, skip the Selenium suite (for example, on a machine without Chrome installed) by excluding it explicitly:
 
 ```bash
 python -m unittest discover tests -p "test_[!s]*.py" -v
