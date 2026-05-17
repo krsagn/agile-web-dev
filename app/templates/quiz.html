@@ -6,6 +6,15 @@ has_completed_today = completed_today | default(false) %} {% block title %}Quiz
   href="{{ url_for('static', filename='css/quiz.css') }}"
 />
 {% endblock %} {% block content %}
+{% if not has_completed_today %}
+<img
+  class="quiz-category-character"
+  src="{{ url_for('static', filename='img/quiz-category-look.png') }}"
+  alt=""
+  aria-hidden="true"
+/>
+{% endif %}
+
 <div class="container py-4">
   <div id="quiz-page-message">
     {% if has_completed_today %}
